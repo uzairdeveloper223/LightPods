@@ -128,7 +128,7 @@ cd lightpods
 The project website is hosted at:
 
 - **Landing page:** [lightpods.ct.ws](https://lightpods.ct.ws)
-- **Privacy Policy:** [lightpods.ct.ws/privacy](https://lightpods.ct.ws/privacy)
+- **Privacy Policy:** [lightpods.ct.ws/privacy/index.html](https://lightpods.ct.ws/privacy/index.html)
 
 Website source is in the [`website/`](website/) directory.
 
