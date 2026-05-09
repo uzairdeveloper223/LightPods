@@ -1,0 +1,114 @@
+name: Build & Release APK
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Release name (e.g. v1.0.0)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+      
+      - name: Grant execute permission to Gradle
+        run: chmod +x ./gradlew
+      
+      - name: Build Debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon
+      
+      - name: Rename APK with version
+        id: rename
+        run: |
+          VERSION="${GITHUB_REF_NAME:-${{ github.event.inputs.release_name }}}"
+          VERSION="${VERSION:-dev-$(date +%Y%m%d)}"
+          APK_NAME="LightPods-${VERSION}.apk"
+          cp app/build/outputs/apk/debug/app-debug.apk "${APK_NAME}"
+          echo "apk_name=${APK_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.rename.outputs.apk_name }}
+          path: ${{ steps.rename.outputs.apk_name }}
+          retention-days: 30
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get version info
+        id: version
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${TAG#v}" >> "$GITHUB_OUTPUT"
+          
+          # Generate changelog from last tag
+          PREV_TAG=$(git tag --sort=-v:refname | head -2 | tail -1)
+          if [ "${PREV_TAG}" != "${TAG}" ] && [ -n "${PREV_TAG}" ]; then
+            CHANGELOG=$(git log "${PREV_TAG}..${TAG}" --pretty=format:"- %s" --no-merges)
+          else
+            CHANGELOG=$(git log --pretty=format:"- %s" --no-merges -10)
+          fi
+          
+          # Write multiline changelog
+          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+          echo "${CHANGELOG}" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+      
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: LightPods-${{ steps.version.outputs.tag }}.apk
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: "LightPods ${{ steps.version.outputs.version }}"
+          body: |
+            ## LightPods ${{ steps.version.outputs.version }}
+            
+            ### Changes
+            ${{ steps.version.outputs.changelog }}
+            
+            ### Install
+            1. Download `LightPods-${{ steps.version.outputs.tag }}.apk` below
+            2. Enable "Install from unknown sources" if prompted
+            3. Open the APK to install
+            
+            ---
+            **Min SDK:** Android 7.0 (API 24) · **Target:** Android 15 (API 35)
+          files: LightPods-${{ steps.version.outputs.tag }}.apk
+          draft: false
+          prerelease: false
+          generate_release_notes: false

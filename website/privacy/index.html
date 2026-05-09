@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — LightPods</title>
+    <meta name="description" content="Privacy Policy for the LightPods Android application.">
+    <meta name="theme-color" content="#0A1A2E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --md-sys-color-primary: #a0c4ff;
+            --md-sys-color-surface: #0E1117;
+            --md-sys-color-surface-container: #161A22;
+            --md-sys-color-on-surface: #E2E2E9;
+            --md-sys-color-on-surface-variant: #C3C6CF;
+            --md-sys-color-outline: #8D9199;
+            --md-sys-color-outline-variant: #43474E;
+            --md-sys-shape-corner-xl: 28px;
+            --md-sys-shape-corner-lg: 20px;
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--md-sys-color-surface);
+            color: var(--md-sys-color-on-surface);
+            line-height: 1.7;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 780px;
+            margin: 0 auto;
+            padding: 80px 24px 120px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--md-sys-color-primary);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 40px;
+            transition: opacity 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 0.7;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .effective {
+            font-size: 0.8rem;
+            color: var(--md-sys-color-outline);
+            margin-bottom: 48px;
+        }
+
+        .card {
+            background: var(--md-sys-color-surface-container);
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--md-sys-shape-corner-lg);
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--md-sys-color-primary);
+        }
+
+        p,
+        li {
+            font-size: 0.95rem;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        p+p {
+            margin-top: 12px;
+        }
+
+        ul {
+            list-style: none;
+            margin: 12px 0;
+        }
+
+        ul li {
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+
+        ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--md-sys-color-primary);
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--md-sys-color-primary);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        footer {
+            border-top: 1px solid var(--md-sys-color-outline-variant);
+            padding: 32px 24px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--md-sys-color-outline);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <a href="https://lightpods.uzair.ct.ws/" class="back-link">← Back to LightPods</a>
+
+        <h1>Privacy Policy</h1>
+        <p class="effective">Effective: May 9, 2026 · Last Updated: May 9, 2026</p>
+
+        <div class="card">
+            <h2>Overview</h2>
+            <p>LightPods is a free, open-source Android application developed by Uzair Mughal. This app is designed to
+                provide battery monitoring, ear detection, and connection management for AirPods-compatible Bluetooth
+                earbuds.</p>
+            <p>We take your privacy seriously. This policy explains what data the app accesses, how it's used, and your
+                rights.</p>
+        </div>
+
+        <div class="card">
+            <h2>Data We Do NOT Collect</h2>
+            <p>LightPods does <strong>not</strong> collect, store, transmit, or share any personal data. Specifically:
+            </p>
+            <ul>
+                <li>No analytics or telemetry</li>
+                <li>No crash reporting services</li>
+                <li>No advertising frameworks</li>
+                <li>No user accounts or authentication</li>
+                <li>No cloud servers or network requests</li>
+                <li>No location data is recorded or transmitted</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Permissions Used</h2>
+            <p>The app requires certain Android permissions to function. All data accessed by these permissions stays
+                entirely on your device.</p>
+            <ul>
+                <li><strong>BLUETOOTH_CONNECT / BLUETOOTH_SCAN</strong> — Required to detect and communicate with your
+                    Bluetooth earbuds.</li>
+                <li><strong>ACCESS_FINE_LOCATION</strong> — Required by Android (pre-12) for BLE scanning. We do not
+                    read or store your GPS location.</li>
+                <li><strong>FOREGROUND_SERVICE</strong> — Used to run a lightweight background monitor that keeps
+                    battery info up to date.</li>
+                <li><strong>SYSTEM_ALERT_WINDOW</strong> — Optional. Shows a connection popup over other apps when pods
+                    are detected.</li>
+                <li><strong>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</strong> — Optional. Prevents Android from killing the
+                    background service.</li>
+                <li><strong>POST_NOTIFICATIONS</strong> — Shows battery status in the notification bar.</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2>Bluetooth Data</h2>
+            <p>The app reads BLE (Bluetooth Low Energy) advertisements broadcast by your earbuds. This data includes:
+            </p>
+            <ul>
+                <li>Battery levels (per-pod and case)</li>
+                <li>Ear detection status</li>
+                <li>Microphone assignment</li>
+                <li>Case lid state</li>
+                <li>Device MAC address</li>
+                <li>Signal strength (RSSI)</li>
+            </ul>
+            <p>This data is processed in real-time on your device and is never stored permanently, logged, or
+                transmitted anywhere.</p>
+        </div>
+
+        <div class="card">
+            <h2>Third-Party Services</h2>
+            <p>LightPods uses zero third-party services, SDKs, or libraries that collect user data. The app is
+                completely offline and self-contained.</p>
+        </div>
+
+        <div class="card">
+            <h2>Open Source</h2>
+            <p>The complete source code is publicly available at <a
+                    href="https://github.com/uzairdeveloper223/lightpods">github.com/uzairdeveloper223/lightpods</a>.
+                You can audit every line of code to verify these claims.</p>
+        </div>
+
+        <div class="card">
+            <h2>Children's Privacy</h2>
+            <p>This app does not collect any data from anyone, including children under 13. It is safe for use by all
+                ages.</p>
+        </div>
+
+        <div class="card">
+            <h2>Changes to This Policy</h2>
+            <p>Any changes to this privacy policy will be reflected on this page with an updated "Last Updated" date.
+                Since the app collects no data, changes are expected to be rare.</p>
+        </div>
+
+        <div class="card">
+            <h2>Contact</h2>
+            <p>If you have questions about this privacy policy, you can reach the developer at:</p>
+            <p><a href="mailto:contact@uzair.is-a.dev">contact@uzair.is-a.dev</a> · <a
+                    href="https://uzair.is-a.dev">uzair.is-a.dev</a></p>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 LightPods by <a href="https://uzair.is-a.dev">Uzair Mughal</a></p>
+    </footer>
+
+</body>
+
+</html>
