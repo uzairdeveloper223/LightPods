@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/uzairdeveloper223/lightpods/releases"><img src="https://img.shields.io/github/v/release/uzairdeveloper223/lightpods?style=flat-square&color=a0c4ff&label=Download" alt="Release"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPLv3-blue?style=flat-square" alt="License"></a>
-  <a href="https://lightpods.uzair.ct.ws/"><img src="https://img.shields.io/badge/website-live-brightgreen?style=flat-square" alt="Website"></a>
+  <a href="https://lightpods.ct.ws/"><img src="https://img.shields.io/badge/website-live-brightgreen?style=flat-square" alt="Website"></a>
 </p>
 
 ---
@@ -127,8 +127,8 @@ cd lightpods
 
 The project website is hosted at:
 
-- **Landing page:** [lightpods.uzair.ct.ws](https://lightpods.uzair.ct.ws)
-- **Privacy Policy:** [lightpods-privacy.uzair.ct.ws](https://lightpods-privacy.uzair.ct.ws)
+- **Landing page:** [lightpods.ct.ws](https://lightpods.ct.ws)
+- **Privacy Policy:** [lightpods.ct.ws/privacy](https://lightpods.ct.ws/privacy)
 
 Website source is in the [`website/`](website/) directory.
 

@@ -177,7 +177,7 @@ fun SettingsScreen(
                             Intent(
                                 Intent.ACTION_VIEW,
                                 Uri.parse(
-                                    "https://lightpods-privacy.uzair.ct.ws"
+                                    "https://lightpods.ct.ws/privacy"
                                 )
                             )
                         )
