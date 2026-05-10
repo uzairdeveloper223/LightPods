@@ -82,8 +82,8 @@ class PodsViewModel(application: Application) :
             val info = appUpdater.checkForUpdate()
             _updateInfo.value = info ?: if (showResult) {
                 UpdateInfo(
-                    latestVersion = "1.0.0",
-                    latestVersionCode = 1,
+                    latestVersion = AppUpdater.CURRENT_VERSION,
+                    latestVersionCode = 0,
                     downloadUrl = "",
                     releaseNotes = "Could not reach the update server. Check your connection and try again.",
                     isUpdateAvailable = false
