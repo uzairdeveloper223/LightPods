@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    name: Build Debug APK
+    name: Build Release APK
     runs-on: ubuntu-latest
     
     steps:
@@ -32,9 +32,17 @@ jobs:
       
       - name: Grant execute permission to Gradle
         run: chmod +x ./gradlew
-      
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --no-daemon
+
+      # Decode the release keystore from GitHub Secrets
+      - name: Decode keystore
+        run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release-keystore.jks
+
+      - name: Build Release APK
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease --no-daemon
       
       - name: Rename APK with version
         id: rename
@@ -42,9 +50,14 @@ jobs:
           VERSION="${GITHUB_REF_NAME:-${{ github.event.inputs.release_name }}}"
           VERSION="${VERSION:-dev-$(date +%Y%m%d)}"
           APK_NAME="LightPods-${VERSION}.apk"
-          cp app/build/outputs/apk/debug/app-debug.apk "${APK_NAME}"
+          cp app/build/outputs/apk/release/app-release.apk "${APK_NAME}"
           echo "apk_name=${APK_NAME}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      # Clean up keystore from runner
+      - name: Clean keystore
+        if: always()
+        run: rm -f app/release-keystore.jks
       
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4

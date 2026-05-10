@@ -16,3 +16,7 @@ local.properties
 
 # Local scripts (not pushed)
 release-manager.sh
+
+# Release signing keystore (never commit)
+*.jks
+*.keystore
