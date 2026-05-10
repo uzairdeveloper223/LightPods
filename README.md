@@ -40,7 +40,12 @@ Built entirely with **Kotlin**, **Jetpack Compose**, and **Material Design 3** w
 
 ## Screenshots
 
-*Coming soon — app is in active development.*
+<div align="center">
+  <img src="assets/images/main_activity_connected.png" width="24%" alt="Main Dashboard">
+  <img src="assets/images/android_home_overlay.png" width="24%" alt="System Overlay">
+  <img src="assets/images/settings_activity.png" width="24%" alt="Settings Screen">
+  <img src="assets/images/notification_center_connected.png" width="24%" alt="Live Notification">
+</div>
 
 ## Protocol Details
 

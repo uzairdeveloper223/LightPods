@@ -54,7 +54,7 @@ class AppUpdater(private val context: Context) {
             "https://api.github.com/repos/" +
                 "uzairdeveloper223/lightpods/" +
                 "releases/latest"
-        const val CURRENT_VERSION = "1.1.0"
+        const val CURRENT_VERSION = "1.1.1"
     }
 
     private val scope = CoroutineScope(

@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LightPods - Material You AirPods Companion</title>
     <meta name="description"
         content="A Material You companion app for AirPods-compatible earbuds with real-time battery, ear detection, microphone tracking, and BLE proximity scanning.">
@@ -89,6 +89,7 @@
         *::before,
         *::after {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         html {
@@ -408,19 +409,6 @@
             background: #101513;
             box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
             overflow: hidden;
-        }
-
-        .pixel::before {
-            content: "";
-            position: absolute;
-            top: 11px;
-            left: 50%;
-            z-index: 2;
-            width: 82px;
-            height: 26px;
-            border-radius: 999px;
-            background: #050806;
-            transform: translateX(-50%);
         }
 
         .app-screen {
@@ -972,8 +960,8 @@
         </div>
     </header>
 
-    <main id="main">
-        <section class="section hero" aria-labelledby="hero-title">
+    <main>
+        <section id="main" class="section hero" aria-labelledby="hero-title">
             <div class="hero__copy">
                 <div class="eyebrow">
                     <span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span>
@@ -1010,62 +998,7 @@
 
             <div class="device-stage" aria-label="LightPods app preview">
                 <div class="pixel" role="img" aria-label="Pixel phone mockup showing LightPods battery screen">
-                    <div class="app-screen">
-                        <div class="status-bar">
-                            <span>9:41</span>
-                            <span>5G&nbsp;&nbsp;86%</span>
-                        </div>
-                        <div class="screen-top">
-                            <img src="./assets/icon.png" alt="" width="42" height="42">
-                            <div class="screen-title">
-                                <strong>AirPods Pro</strong>
-                                <span>Nearby - BLE connected</span>
-                            </div>
-                            <span class="material-symbols-rounded" aria-hidden="true">settings</span>
-                        </div>
-                        <div class="pods-sheet">
-                            <div class="pods-visual" aria-hidden="true">
-                                <div class="pod">
-                                    <div class="bud"></div>
-                                    <span class="battery-chip">L 90%</span>
-                                </div>
-                                <div class="pod">
-                                    <div class="case"></div>
-                                    <span class="battery-chip">Case 70%</span>
-                                </div>
-                                <div class="pod">
-                                    <div class="bud"></div>
-                                    <span class="battery-chip">R 80%</span>
-                                </div>
-                            </div>
-                            <div class="screen-row">
-                                <span class="material-symbols-rounded" aria-hidden="true">hearing</span>
-                                <div>
-                                    <strong>Ear detection active</strong>
-                                    <span>Left in ear, right in case</span>
-                                </div>
-                            </div>
-                            <div class="screen-row">
-                                <span class="material-symbols-rounded" aria-hidden="true">mic</span>
-                                <div>
-                                    <strong>Microphone selected</strong>
-                                    <span>Primary pod: left</span>
-                                </div>
-                            </div>
-                            <div class="screen-row">
-                                <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
-                                <div>
-                                    <strong>Overlay ready</strong>
-                                    <span>Popup only when nearby</span>
-                                </div>
-                            </div>
-                            <div class="screen-nav" aria-hidden="true">
-                                <span class="material-symbols-rounded">home</span>
-                                <span class="material-symbols-rounded">bluetooth</span>
-                                <span class="material-symbols-rounded">tune</span>
-                            </div>
-                        </div>
-                    </div>
+                        <img src="./assets/images/main_activity_connected.png" alt="LightPods UI" style="display: block; width: 100%; height: auto; pointer-events: none; border-radius: 34px;">
                 </div>
             </div>
         </section>
@@ -1216,17 +1149,28 @@
             });
         };
 
+        const visibleSections = new Set();
         const observer = new IntersectionObserver((entries) => {
-            const visible = entries
-                .filter((entry) => entry.isIntersecting)
-                .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    visibleSections.add(entry.target.id);
+                } else {
+                    visibleSections.delete(entry.target.id);
+                }
+            });
 
-            if (visible) {
-                setActiveSection(visible.target.id);
+            // If protocol is visible, always highlight it (it's at the bottom)
+            if (visibleSections.has("protocol")) {
+                setActiveSection("protocol");
+            } else if (visibleSections.has("features")) {
+                setActiveSection("features");
+            } else if (visibleSections.has("main")) {
+                setActiveSection("main");
             }
         }, {
-            rootMargin: "-25% 0px -55% 0px",
-            threshold: [0.1, 0.25, 0.5, 0.75]
+            // Trigger when section reaches the middle 40% of the viewport
+            rootMargin: "-30% 0px -30% 0px",
+            threshold: 0
         });
 
         sections.forEach((section) => observer.observe(section));

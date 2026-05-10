@@ -442,19 +442,19 @@ class OverlayPopupManager(
         )
         row.addView(
             buildBatteryCard(
-                label = "Right",
-                percent = scan.battery.rightPercent,
-                note = if (!scan.isLeftMicrophone) {
-                    "Mic"
-                } else null,
+                label = "Case",
+                percent = scan.battery.casePercent,
+                note = null,
                 palette = palette
             )
         )
         row.addView(
             buildBatteryCard(
-                label = "Case",
-                percent = scan.battery.casePercent,
-                note = null,
+                label = "Right",
+                percent = scan.battery.rightPercent,
+                note = if (!scan.isLeftMicrophone) {
+                    "Mic"
+                } else null,
                 palette = palette
             )
         )
