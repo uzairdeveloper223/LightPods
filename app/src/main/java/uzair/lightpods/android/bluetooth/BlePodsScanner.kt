@@ -19,6 +19,11 @@ class BlePodsScanner(private val context: Context) {
     val scanState: StateFlow<BleScanState> =
         _scanState.asStateFlow()
 
+    /** All nearby devices keyed by MAC address with timestamps */
+    private val _nearbyDevices = MutableStateFlow<Map<String, BleScanState>>(emptyMap())
+    val nearbyDevices: StateFlow<Map<String, BleScanState>> =
+        _nearbyDevices.asStateFlow()
+
     private var bluetoothAdapter: BluetoothAdapter? =
         null
     private var isScanning = false
@@ -88,8 +93,12 @@ class BlePodsScanner(private val context: Context) {
     @SuppressLint("MissingPermission")
     fun stopScanning() {
         if (!isScanning) return
-        bluetoothAdapter?.bluetoothLeScanner
-            ?.stopScan(scanCallback)
+        try {
+            bluetoothAdapter?.bluetoothLeScanner
+                ?.stopScan(scanCallback)
+        } catch (_: Exception) {
+            // BT adapter may have been turned off
+        }
         isScanning = false
     }
 
@@ -219,28 +228,40 @@ class BlePodsScanner(private val context: Context) {
         @SuppressLint("MissingPermission")
         val address = result.device?.address ?: ""
 
-        _scanState.update {
-            BleScanState(
-                isDeviceFound = true,
-                address = address,
-                battery = PodBattery(
-                    leftPercent = leftBattery,
-                    rightPercent = rightBattery,
-                    casePercent = caseBattery
-                ),
-                isLeftInEar = isLeftInEar,
-                isRightInEar = isRightInEar,
-                isCaseLidOpen = isCaseLidOpen,
-                caseLidState = caseLidState,
-                isLeftMicrophone = isLeftMic,
-                rssi = rssi,
-                deviceModel = deviceCode,
-                spoofedModel = spoofedModel,
-                messageLength = messageLength,
-                areBothPodsInCase = areBothInCase,
-                isOnePodInCase = isOnePodInCase,
-                isThisPodInCase = isThisPodInCase
-            )
+        val scanEntry = BleScanState(
+            isDeviceFound = true,
+            address = address,
+            battery = PodBattery(
+                leftPercent = leftBattery,
+                rightPercent = rightBattery,
+                casePercent = caseBattery
+            ),
+            isLeftInEar = isLeftInEar,
+            isRightInEar = isRightInEar,
+            isCaseLidOpen = isCaseLidOpen,
+            caseLidState = caseLidState,
+            isLeftMicrophone = isLeftMic,
+            rssi = rssi,
+            deviceModel = deviceCode,
+            spoofedModel = spoofedModel,
+            messageLength = messageLength,
+            areBothPodsInCase = areBothInCase,
+            isOnePodInCase = isOnePodInCase,
+            isThisPodInCase = isThisPodInCase,
+            lastSeenMs = System.currentTimeMillis()
+        )
+
+        // Update primary (strongest signal) device
+        _scanState.value = scanEntry
+
+        // Track ALL devices by MAC address
+        if (address.isNotBlank()) {
+            _nearbyDevices.update { map ->
+                val pruned = map.filterValues {
+                    System.currentTimeMillis() - it.lastSeenMs < STALE_TIMEOUT_MS
+                }
+                pruned + (address to scanEntry)
+            }
         }
     }
 
@@ -255,6 +276,7 @@ class BlePodsScanner(private val context: Context) {
         const val PROXIMITY_PAIRING_TYPE = 0x07
         const val PROXIMITY_DATA_LENGTH = 27
         const val MIN_PAYLOAD_LENGTH = 10
+        private const val STALE_TIMEOUT_MS = 10_000L  // 10 seconds
     }
 }
 
@@ -275,5 +297,6 @@ data class BleScanState(
     val messageLength: Int = 0,
     val areBothPodsInCase: Boolean = false,
     val isOnePodInCase: Boolean = false,
-    val isThisPodInCase: Boolean = false
+    val isThisPodInCase: Boolean = false,
+    val lastSeenMs: Long = 0L
 )

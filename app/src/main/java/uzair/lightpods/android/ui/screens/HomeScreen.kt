@@ -65,6 +65,7 @@ import uzair.lightpods.android.bluetooth.CaseLidState
 import uzair.lightpods.android.bluetooth.ConnectionState
 import uzair.lightpods.android.bluetooth.GestureMapping
 import uzair.lightpods.android.bluetooth.MicrophoneLocation
+import uzair.lightpods.android.bluetooth.NearbyPod
 import uzair.lightpods.android.bluetooth.PodBattery
 import uzair.lightpods.android.bluetooth.PodDeviceInfo
 import uzair.lightpods.android.bluetooth.PodsUiState
@@ -222,6 +223,9 @@ private fun ConnectedContent(
         item { BatteryOverviewCard(state.battery) }
         item { LiveStateCard(state) }
         item { DeviceIdentityCard(state.deviceInfo, state.rssi) }
+        if (state.nearbyDevices.isNotEmpty()) {
+            item { NearbyDevicesCard(state.nearbyDevices) }
+        }
         item { GestureCard(state.gestures) }
         item { Spacer(modifier = Modifier.height(16.dp)) }
     }
@@ -935,5 +939,172 @@ private fun batteryColor(percent: Int): Color {
         percent > 50 -> BatteryFull
         percent > 20 -> BatteryMedium
         else -> BatteryLow
+    }
+}
+
+// ── Nearby Devices Card ─────────────────────────────────────────────
+
+@Composable
+private fun NearbyDevicesCard(
+    devices: List<NearbyPod>
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme
+                .surfaceContainerHigh
+        )
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Nearby Devices",
+                    style = MaterialTheme.typography.titleMedium
+                        .copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.weight(1f))
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primary
+                        .copy(alpha = 0.12f)
+                ) {
+                    Text(
+                        text = "${devices.size}",
+                        style = MaterialTheme.typography.labelMedium
+                            .copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(
+                            horizontal = 10.dp,
+                            vertical = 4.dp
+                        )
+                    )
+                }
+            }
+
+            Spacer(Modifier.height(14.dp))
+
+            devices.forEachIndexed { index, pod ->
+                NearbyDeviceRow(pod)
+                if (index < devices.lastIndex) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 10.dp),
+                        thickness = 0.5.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                            .copy(alpha = 0.4f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NearbyDeviceRow(pod: NearbyPod) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        // Model icon placeholder (colored dot)
+        Box(
+            modifier = Modifier
+                .size(36.dp)
+                .clip(CircleShape)
+                .background(
+                    if (pod.isFake)
+                        MaterialTheme.colorScheme.tertiary.copy(alpha = 0.15f)
+                    else
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = if (pod.isFake) "🎭" else "🎧",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        Spacer(Modifier.width(12.dp))
+
+        // Device info
+        Column(modifier = Modifier.weight(1f)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = pod.model.label,
+                    style = MaterialTheme.typography.bodyMedium
+                        .copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                if (pod.isFake) {
+                    Spacer(Modifier.width(6.dp))
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = MaterialTheme.colorScheme.tertiary
+                            .copy(alpha = 0.15f)
+                    ) {
+                        Text(
+                            text = "Clone",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.padding(
+                                horizontal = 6.dp,
+                                vertical = 2.dp
+                            )
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(2.dp))
+
+            // Battery summary
+            val parts = mutableListOf<String>()
+            if (pod.battery.isLeftAvailable)
+                parts.add("L: ${pod.battery.leftPercent}%")
+            if (pod.battery.isRightAvailable)
+                parts.add("R: ${pod.battery.rightPercent}%")
+            if (pod.battery.isCaseAvailable)
+                parts.add("Case: ${pod.battery.casePercent}%")
+
+            Text(
+                text = if (parts.isNotEmpty()) parts.joinToString(" · ")
+                       else "No battery data",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        // Signal strength
+        Column(horizontalAlignment = Alignment.End) {
+            val signalLabel = when {
+                pod.rssi >= -50 -> "Strong"
+                pod.rssi >= -70 -> "Good"
+                pod.rssi >= -85 -> "Weak"
+                else -> "Far"
+            }
+            val signalColor = when {
+                pod.rssi >= -50 -> BatteryFull
+                pod.rssi >= -70 -> BatteryMedium
+                else -> BatteryLow
+            }
+
+            Text(
+                text = signalLabel,
+                style = MaterialTheme.typography.labelSmall
+                    .copy(fontWeight = FontWeight.SemiBold),
+                color = signalColor
+            )
+            Text(
+                text = "${pod.rssi} dBm",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+                    .copy(alpha = 0.6f)
+            )
+        }
     }
 }

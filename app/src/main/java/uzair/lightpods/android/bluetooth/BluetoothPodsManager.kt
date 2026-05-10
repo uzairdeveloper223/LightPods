@@ -155,6 +155,26 @@ class BluetoothPodsManager private constructor(
                 mergeBleState(scan)
             }
         }
+        // Collect nearby devices map → convert to sorted list
+        scope.launch {
+            bleScanner.nearbyDevices.collect { devicesMap ->
+                val primaryAddress = _state.value.deviceInfo.macAddress
+                val nearbyList = devicesMap
+                    .filterKeys { it != primaryAddress }
+                    .map { (address, scan) ->
+                        NearbyPod(
+                            address = address,
+                            model = scan.spoofedModel,
+                            battery = scan.battery,
+                            rssi = scan.rssi,
+                            isFake = scan.spoofedModel.isFake,
+                            lastSeenMs = scan.lastSeenMs
+                        )
+                    }
+                    .sortedByDescending { it.rssi }  // strongest signal first
+                _state.update { it.copy(nearbyDevices = nearbyList) }
+            }
+        }
     }
 
     fun restartBleScan() {
