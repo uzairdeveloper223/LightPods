@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
+    <!-- App-private cache — used for downloaded APK updates -->
+    <cache-path
+        name="apk_updates"
+        path="updates/" />
+
+    <!-- Legacy: external Downloads (kept for backwards compatibility) -->
     <external-path
         name="downloads"
         path="Download/" />

@@ -55,7 +55,7 @@ class PodsViewModel(application: Application) :
 
     val downloadProgress:
         StateFlow<DownloadProgress> =
-        appUpdater.downloadProgress
+        appUpdater.progress
 
     fun initializeBluetooth() {
         podsManager.initialize()
@@ -118,6 +118,7 @@ class PodsViewModel(application: Application) :
 
     override fun onCleared() {
         super.onCleared()
+        appUpdater.release()
         // Don't release the singleton manager —
         // the foreground service still needs it
     }
