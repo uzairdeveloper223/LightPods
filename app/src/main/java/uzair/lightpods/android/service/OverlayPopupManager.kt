@@ -38,7 +38,7 @@ class OverlayPopupManager(
 
     fun showConnectionPopup(
         scan: BleScanState,
-        deviceName: String = "AirPods Pro"
+        deviceName: String = "LightPods"
     ) {
         if (!canShowOverlay()) return
         if (isShowing) return
@@ -302,7 +302,7 @@ class OverlayPopupManager(
 
         titleColumn.addView(
             TextView(context).apply {
-                text = deviceName.ifBlank { "AirPods Pro" }
+                text = deviceName.ifBlank { "LightPods" }
                 setTextSize(
                     TypedValue.COMPLEX_UNIT_SP,
                     20f

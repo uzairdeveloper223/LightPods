@@ -219,7 +219,7 @@ private fun ConnectionHero(
             }
 
             Text(
-                text = deviceName.ifBlank { "AirPods Pro" },
+                text = deviceName.ifBlank { "LightPods" },
                 style = MaterialTheme
                     .typography.headlineSmall
                     .copy(fontWeight = FontWeight.Bold),

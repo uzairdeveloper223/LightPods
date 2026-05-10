@@ -19,14 +19,16 @@ class BlePodsScanner(private val context: Context) {
     val scanState: StateFlow<BleScanState> =
         _scanState.asStateFlow()
 
-    /** All nearby devices keyed by MAC address with timestamps */
-    private val _nearbyDevices = MutableStateFlow<Map<String, BleScanState>>(emptyMap())
-    val nearbyDevices: StateFlow<Map<String, BleScanState>> =
-        _nearbyDevices.asStateFlow()
-
     private var bluetoothAdapter: BluetoothAdapter? =
         null
     private var isScanning = false
+
+    // ── Flip stabilization ──
+    // The isFlipped bit oscillates between BLE packets.
+    // We lock into a flip state and only change after
+    // seeing N consecutive packets with the new value.
+    private var stableFlip: Boolean? = null
+    private var flipChangeCount = 0
 
     private val scanCallback =
         object : ScanCallback() {
@@ -149,7 +151,7 @@ class BlePodsScanner(private val context: Context) {
             appleData[dataOffset + 6].toInt() and 0xFF
 
         // ── Status bit parsing ──
-        val isFlipped =
+        val rawFlipped =
             (statusByte and (1 shl 5)) == 0
         val isThisPodInCase =
             (statusByte and (1 shl 6)) != 0
@@ -157,6 +159,26 @@ class BlePodsScanner(private val context: Context) {
             (statusByte and (1 shl 4)) != 0
         val areBothInCase =
             (statusByte and (1 shl 2)) != 0
+
+        // ── Stabilize flip state ──
+        // Only accept a flip change after FLIP_THRESHOLD
+        // consecutive packets confirm the new orientation.
+        val isFlipped = if (stableFlip == null) {
+            stableFlip = rawFlipped
+            rawFlipped
+        } else if (rawFlipped != stableFlip) {
+            flipChangeCount++
+            if (flipChangeCount >= FLIP_THRESHOLD) {
+                stableFlip = rawFlipped
+                flipChangeCount = 0
+                rawFlipped
+            } else {
+                stableFlip!!
+            }
+        } else {
+            flipChangeCount = 0
+            stableFlip!!
+        }
 
         // ── Battery (nibble-based, 0-10 scale) ──
         val rawLeftNibble: Int
@@ -251,18 +273,8 @@ class BlePodsScanner(private val context: Context) {
             lastSeenMs = System.currentTimeMillis()
         )
 
-        // Update primary (strongest signal) device
+        // Update primary device
         _scanState.value = scanEntry
-
-        // Track ALL devices by MAC address
-        if (address.isNotBlank()) {
-            _nearbyDevices.update { map ->
-                val pruned = map.filterValues {
-                    System.currentTimeMillis() - it.lastSeenMs < STALE_TIMEOUT_MS
-                }
-                pruned + (address to scanEntry)
-            }
-        }
     }
 
     private fun nibbleToBattery(nibble: Int): Int {
@@ -276,7 +288,7 @@ class BlePodsScanner(private val context: Context) {
         const val PROXIMITY_PAIRING_TYPE = 0x07
         const val PROXIMITY_DATA_LENGTH = 27
         const val MIN_PAYLOAD_LENGTH = 10
-        private const val STALE_TIMEOUT_MS = 10_000L  // 10 seconds
+        private const val FLIP_THRESHOLD = 3  // consecutive packets to confirm flip change
     }
 }
 

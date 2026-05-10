@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
                     ConnectionSheet(
                         deviceName = uiState.deviceInfo
                             .deviceName
-                            .ifBlank { "AirPods Pro" },
+                            .ifBlank { "LightPods" },
                         battery = uiState.battery,
                         micLocation = uiState.micLocation,
                         onDismiss = {

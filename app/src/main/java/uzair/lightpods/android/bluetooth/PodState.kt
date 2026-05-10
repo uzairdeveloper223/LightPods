@@ -148,16 +148,6 @@ data class PodDeviceInfo(
     val isFake: Boolean = false
 )
 
-/** A nearby detected device (may not be the primary/connected one). */
-data class NearbyPod(
-    val address: String,
-    val model: SpoofedModel,
-    val battery: PodBattery,
-    val rssi: Int,
-    val isFake: Boolean,
-    val lastSeenMs: Long
-)
-
 enum class GestureAction(val displayName: String) {
     PLAY_PAUSE("Play / Pause"),
     FORWARD("Next Track"),
@@ -230,6 +220,5 @@ data class PodsUiState(
     val areBothPodsInCase: Boolean = false,
     val micLocation: MicrophoneLocation =
         MicrophoneLocation.UNKNOWN,
-    val rssi: Int = 0,
-    val nearbyDevices: List<NearbyPod> = emptyList()
+    val rssi: Int = 0
 )
