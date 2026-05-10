@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,16 +15,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -34,12 +37,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import uzair.lightpods.android.R
 import uzair.lightpods.android.bluetooth.MicrophoneLocation
@@ -64,8 +70,9 @@ fun ConnectionSheet(
     var contentVisible by remember {
         mutableStateOf(false)
     }
+
     LaunchedEffect(Unit) {
-        delay(150)
+        delay(100)
         contentVisible = true
     }
 
@@ -73,101 +80,81 @@ fun ConnectionSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         shape = RoundedCornerShape(
-            topStart = 28.dp, topEnd = 28.dp
+            topStart = 32.dp,
+            topEnd = 32.dp
         ),
         containerColor =
             MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
+        tonalElevation = 3.dp,
         dragHandle = {
-            Spacer(modifier = Modifier.height(8.dp))
+            Box(
+                modifier = Modifier
+                    .padding(top = 10.dp, bottom = 8.dp)
+                    .size(width = 44.dp, height = 5.dp)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(
+                        MaterialTheme.colorScheme
+                            .outlineVariant
+                    )
+            )
         },
         modifier = modifier
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .navigationBarsPadding()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 24.dp),
-            horizontalAlignment =
-                Alignment.CenterHorizontally
+        AnimatedVisibility(
+            visible = contentVisible,
+            enter = slideInVertically(
+                animationSpec = spring(
+                    dampingRatio =
+                        Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow
+                ),
+                initialOffsetY = { it / 4 }
+            ) + fadeIn()
         ) {
-            AnimatedVisibility(
-                visible = contentVisible,
-                enter = slideInVertically(
-                    animationSpec = spring(
-                        dampingRatio =
-                            Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    ),
-                    initialOffsetY = { it / 3 }
-                ) + fadeIn()
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 24.dp),
+                horizontalAlignment =
+                    Alignment.CenterHorizontally
             ) {
-                Column(
-                    horizontalAlignment =
-                        Alignment.CenterHorizontally
-                ) {
-                    DeviceHeroRow(battery, micLocation)
+                ConnectionHero(
+                    deviceName = deviceName,
+                    battery = battery,
+                    micLocation = micLocation
+                )
 
-                    Spacer(
-                        modifier = Modifier.height(16.dp)
+                Spacer(modifier = Modifier.height(18.dp))
+
+                BatterySummaryGrid(
+                    battery = battery,
+                    micLocation = micLocation
+                )
+
+                Spacer(modifier = Modifier.height(18.dp))
+
+                Button(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(54.dp),
+                    shape = RoundedCornerShape(18.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor =
+                            MaterialTheme.colorScheme.primary
                     )
-
+                ) {
                     Text(
-                        text = deviceName,
+                        text = "Done",
                         style = MaterialTheme
-                            .typography.headlineSmall
+                            .typography.labelLarge
                             .copy(
                                 fontWeight =
                                     FontWeight.Bold
-                            ),
-                        color = MaterialTheme
-                            .colorScheme.onSurface,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(4.dp)
-                    )
-
-                    Text(
-                        text =
-                            "AirPods Pro \u00B7 Connected",
-                        style = MaterialTheme
-                            .typography.bodyMedium,
-                        color = MaterialTheme
-                            .colorScheme.onSurfaceVariant
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(24.dp)
-                    )
-
-                    Button(
-                        onClick = onDismiss,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        shape = RoundedCornerShape(14.dp),
-                        colors =
-                            ButtonDefaults.buttonColors(
-                                containerColor =
-                                    MaterialTheme
-                                        .colorScheme
-                                        .primary
                             )
-                    ) {
-                        Text(
-                            text = "Done",
-                            style = MaterialTheme
-                                .typography.labelLarge
-                                .copy(
-                                    fontWeight =
-                                        FontWeight
-                                            .SemiBold
-                                )
-                        )
-                    }
+                    )
                 }
             }
         }
@@ -175,160 +162,312 @@ fun ConnectionSheet(
 }
 
 @Composable
-private fun DeviceHeroRow(
+private fun ConnectionHero(
+    deviceName: String,
     battery: PodBattery,
     micLocation: MicrophoneLocation
 ) {
-    Row(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement =
-            Arrangement.Center,
-        verticalAlignment =
-            Alignment.CenterVertically
+        shape = RoundedCornerShape(30.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+            .copy(alpha = 0.58f)
     ) {
-        PodWithBattery(
-            imageRes = R.drawable.pod_left,
-            label = "Left",
+        Column(
+            modifier = Modifier
+                .background(
+                    Brush.verticalGradient(
+                        listOf(
+                            MaterialTheme.colorScheme
+                                .primaryContainer
+                                .copy(alpha = 0.86f),
+                            MaterialTheme.colorScheme
+                                .surfaceVariant
+                                .copy(alpha = 0.38f)
+                        )
+                    )
+                )
+                .padding(18.dp),
+            horizontalAlignment =
+                Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(142.dp),
+                horizontalArrangement =
+                    Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PodArt(
+                    res = R.drawable.pod_left,
+                    contentDescription = "Left pod",
+                    modifier = Modifier.size(86.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                PodArt(
+                    res = R.drawable.case_closed,
+                    contentDescription = "Case",
+                    modifier = Modifier.size(112.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                PodArt(
+                    res = R.drawable.pod_right,
+                    contentDescription = "Right pod",
+                    modifier = Modifier.size(86.dp)
+                )
+            }
+
+            Text(
+                text = deviceName.ifBlank { "AirPods Pro" },
+                style = MaterialTheme
+                    .typography.headlineSmall
+                    .copy(fontWeight = FontWeight.Bold),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Connected - ${micLabel(micLocation)}",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme
+                    .onSurfaceVariant,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp)
+            ) {
+                ConnectionChip(
+                    label = bestBatteryLabel(battery),
+                    color = bestBatteryColor(battery)
+                )
+                ConnectionChip(
+                    label = "BLE live",
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PodArt(
+    res: Int,
+    contentDescription: String,
+    modifier: Modifier = Modifier
+) {
+    Image(
+        painter = painterResource(res),
+        contentDescription = contentDescription,
+        modifier = modifier,
+        contentScale = ContentScale.Fit
+    )
+}
+
+@Composable
+private fun ConnectionChip(
+    label: String,
+    color: Color
+) {
+    Surface(
+        shape = RoundedCornerShape(999.dp),
+        color = color.copy(alpha = 0.16f),
+        contentColor = color
+    ) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = 12.dp,
+                vertical = 8.dp
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(7.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+            Text(
+                text = label,
+                style = MaterialTheme
+                    .typography.labelMedium
+                    .copy(fontWeight = FontWeight.Bold)
+            )
+        }
+    }
+}
+
+@Composable
+private fun BatterySummaryGrid(
+    battery: PodBattery,
+    micLocation: MicrophoneLocation
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        PopupBatteryRow(
+            label = "Left pod",
             percent = battery.leftPercent,
-            isCharging = battery.isLeftCharging,
-            hasMic = micLocation ==
+            charging = battery.isLeftCharging,
+            note = if (micLocation ==
                 MicrophoneLocation.LEFT
+            ) "Mic" else null
         )
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        PodWithBattery(
-            imageRes = R.drawable.pod_right,
-            label = "Right",
+        PopupBatteryRow(
+            label = "Right pod",
             percent = battery.rightPercent,
-            isCharging = battery.isRightCharging,
-            hasMic = micLocation ==
+            charging = battery.isRightCharging,
+            note = if (micLocation ==
                 MicrophoneLocation.RIGHT
+            ) "Mic" else null
         )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        CaseWithBattery(
+        PopupBatteryRow(
+            label = "Case",
             percent = battery.casePercent,
-            isCharging = battery.isCaseCharging
+            charging = battery.isCaseCharging,
+            note = null
         )
     }
 }
 
 @Composable
-private fun PodWithBattery(
-    imageRes: Int,
+private fun PopupBatteryRow(
     label: String,
     percent: Int,
-    isCharging: Boolean,
-    hasMic: Boolean
+    charging: Boolean,
+    note: String?
 ) {
-    Column(
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp)
+    val isAvailable = percent in 0..100
+    val color = batteryColor(percent)
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant
+            .copy(alpha = 0.42f)
     ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.height(140.dp)
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Image(
-                painter = painterResource(imageRes),
-                contentDescription = label,
-                modifier = Modifier.size(90.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
-
-        if (hasMic) {
-            Text(
-                text = "\uD83C\uDFA4",
-                fontSize = 10.sp
-            )
-        }
-
-        Spacer(modifier = Modifier.height(4.dp))
-
-        Text(
-            text = if (percent in 0..100)
-                "$percent%" else "—",
-            style = MaterialTheme.typography.labelLarge
-                .copy(fontWeight = FontWeight.Bold),
-            color = batteryColor(percent)
-        )
-
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme
-                .colorScheme.onSurfaceVariant
-        )
-
-        if (isCharging) {
-            Text(
-                text = "\u26A1",
-                fontSize = 10.sp,
-                modifier = Modifier.offset(y = (-2).dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement =
+                    Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment =
+                        Alignment.CenterVertically,
+                    horizontalArrangement =
+                        Arrangement.spacedBy(8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .clip(CircleShape)
+                            .background(color)
+                    )
+                    Text(
+                        text = label,
+                        style = MaterialTheme
+                            .typography.bodyMedium
+                            .copy(
+                                fontWeight =
+                                    FontWeight.SemiBold
+                            )
+                    )
+                    if (charging) {
+                        Text(
+                            text = "Charging",
+                            style = MaterialTheme
+                                .typography.labelSmall,
+                            color = MaterialTheme
+                                .colorScheme.primary
+                        )
+                    }
+                    if (note != null) {
+                        Text(
+                            text = note,
+                            style = MaterialTheme
+                                .typography.labelSmall,
+                            color = MaterialTheme
+                                .colorScheme.primary
+                        )
+                    }
+                }
+                Text(
+                    text = if (isAvailable) {
+                        "$percent%"
+                    } else {
+                        "Unknown"
+                    },
+                    style = MaterialTheme
+                        .typography.labelLarge
+                        .copy(fontWeight = FontWeight.Bold)
+                )
+            }
+            LinearProgressIndicator(
+                progress = {
+                    if (isAvailable) percent / 100f else 0f
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(7.dp)
+                    .clip(RoundedCornerShape(999.dp)),
+                color = color,
+                trackColor = MaterialTheme.colorScheme
+                    .outlineVariant.copy(alpha = 0.42f)
             )
         }
     }
 }
 
-@Composable
-private fun CaseWithBattery(
-    percent: Int,
-    isCharging: Boolean
-) {
-    Column(
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
-        modifier = Modifier.padding(horizontal = 8.dp)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.height(140.dp)
-        ) {
-            Image(
-                painter = painterResource(
-                    R.drawable.case_closed
-                ),
-                contentDescription = "Case",
-                modifier = Modifier.size(96.dp),
-                contentScale = ContentScale.Fit
-            )
-        }
+private fun micLabel(
+    micLocation: MicrophoneLocation
+): String {
+    return when (micLocation) {
+        MicrophoneLocation.LEFT -> "left microphone"
+        MicrophoneLocation.RIGHT -> "right microphone"
+        MicrophoneLocation.UNKNOWN -> "microphone unknown"
+    }
+}
 
-        Spacer(modifier = Modifier.height(4.dp))
+private fun bestBatteryLabel(
+    battery: PodBattery
+): String {
+    val available = listOf(
+        battery.leftPercent,
+        battery.rightPercent,
+        battery.casePercent
+    ).filter { it in 0..100 }
 
-        Text(
-            text = if (percent in 0..100)
-                "$percent%" else "—",
-            style = MaterialTheme.typography.labelLarge
-                .copy(fontWeight = FontWeight.Bold),
-            color = batteryColor(percent)
-        )
-
-        Text(
-            text = "Case",
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme
-                .colorScheme.onSurfaceVariant
-        )
-
-        if (isCharging) {
-            Text(
-                text = "\u26A1",
-                fontSize = 10.sp,
-                modifier = Modifier.offset(y = (-2).dp)
-            )
-        }
+    return if (available.isEmpty()) {
+        "Battery unknown"
+    } else {
+        "${available.min()}% minimum"
     }
 }
 
 @Composable
-private fun batteryColor(
-    percent: Int
-): androidx.compose.ui.graphics.Color {
+private fun bestBatteryColor(
+    battery: PodBattery
+): Color {
+    val available = listOf(
+        battery.leftPercent,
+        battery.rightPercent,
+        battery.casePercent
+    ).filter { it in 0..100 }
+
+    return batteryColor(available.minOrNull() ?: -1)
+}
+
+@Composable
+private fun batteryColor(percent: Int): Color {
     return when {
         percent !in 0..100 -> BatteryUnknown
         percent > 50 -> BatteryFull

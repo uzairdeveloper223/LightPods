@@ -19,6 +19,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import uzair.lightpods.android.service.PodsMonitorService
 import uzair.lightpods.android.settings.ThemeMode
+import uzair.lightpods.android.ui.components.ConnectionSheet
 import uzair.lightpods.android.ui.screens.AboutScreen
 import uzair.lightpods.android.ui.screens.HomeScreen
 import uzair.lightpods.android.ui.screens.SettingsScreen
@@ -73,6 +74,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    private val notificationPermissionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts
+                .RequestPermission()
+        ) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -104,6 +111,9 @@ class MainActivity : ComponentActivity() {
                         state = uiState,
                         onNavigateSettings = {
                             currentScreen = "settings"
+                        },
+                        onRequestNotificationPermission = {
+                            requestNotificationPermission()
                         }
                     )
                     "settings" -> SettingsScreen(
@@ -118,7 +128,12 @@ class MainActivity : ComponentActivity() {
                             currentScreen = "about"
                         },
                         onCheckUpdate = {
-                            viewModel.checkForUpdates()
+                            viewModel.checkForUpdates(
+                                showResult = true
+                            )
+                        },
+                        onRequestNotificationPermission = {
+                            requestNotificationPermission()
                         }
                     )
                     "about" -> AboutScreen(
@@ -129,9 +144,15 @@ class MainActivity : ComponentActivity() {
                 }
 
                 if (showUpdate && updateInfo != null) {
+                    val dlProgress by viewModel
+                        .downloadProgress
+                        .collectAsStateWithLifecycle()
+
                     uzair.lightpods.android.updater
                         .UpdateDialog(
                             updateInfo = updateInfo!!,
+                            downloadProgress =
+                                dlProgress,
                             onUpdate = {
                                 viewModel.downloadUpdate()
                             },
@@ -140,6 +161,19 @@ class MainActivity : ComponentActivity() {
                                     .dismissUpdateDialog()
                             }
                         )
+                }
+
+                if (uiState.showConnectionSheet) {
+                    ConnectionSheet(
+                        deviceName = uiState.deviceInfo
+                            .deviceName
+                            .ifBlank { "AirPods Pro" },
+                        battery = uiState.battery,
+                        micLocation = uiState.micLocation,
+                        onDismiss = {
+                            viewModel.dismissConnectionSheet()
+                        }
+                    )
                 }
             }
 
@@ -187,6 +221,24 @@ class MainActivity : ComponentActivity() {
             bgLocationLauncher.launch(
                 Manifest.permission
                     .ACCESS_BACKGROUND_LOCATION
+            )
+        }
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT <
+            Build.VERSION_CODES.TIRAMISU
+        ) return
+
+        val hasNotifications =
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+        if (!hasNotifications) {
+            notificationPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
             )
         }
     }

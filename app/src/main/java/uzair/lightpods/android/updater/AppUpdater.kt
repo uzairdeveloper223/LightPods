@@ -8,8 +8,13 @@ import android.content.IntentFilter
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.io.File
@@ -24,15 +29,39 @@ data class UpdateInfo(
     val isUpdateAvailable: Boolean
 )
 
+data class DownloadProgress(
+    val state: DownloadState = DownloadState.IDLE,
+    val bytesDownloaded: Long = 0,
+    val totalBytes: Long = -1,
+    val percent: Float = 0f
+)
+
+enum class DownloadState {
+    IDLE,
+    DOWNLOADING,
+    COMPLETED,
+    FAILED
+}
+
 class AppUpdater(private val context: Context) {
 
     companion object {
         private const val GITHUB_API =
             "https://api.github.com/repos/" +
-                "uzairdeveloper223/lightpods/releases/latest"
+                "uzairdeveloper223/lightpods/" +
+                "releases/latest"
         private const val CURRENT_VERSION = "1.0.0"
         private const val CURRENT_VERSION_CODE = 1
     }
+
+    private val _downloadProgress =
+        MutableStateFlow(DownloadProgress())
+    val downloadProgress: StateFlow<DownloadProgress> =
+        _downloadProgress.asStateFlow()
+
+    private var activeDownloadId: Long = -1
+    private val handler = Handler(Looper.getMainLooper())
+    private var progressRunnable: Runnable? = null
 
     suspend fun checkForUpdate(): UpdateInfo? {
         return withContext(Dispatchers.IO) {
@@ -84,8 +113,12 @@ class AppUpdater(private val context: Context) {
 
                 val remoteCode =
                     parseVersionCode(latestVersion)
+                val currentCode =
+                    parseVersionCode(
+                        CURRENT_VERSION
+                    )
                 val isNewer =
-                    remoteCode > CURRENT_VERSION_CODE
+                    remoteCode > currentCode
 
                 UpdateInfo(
                     latestVersion = latestVersion,
@@ -105,44 +138,65 @@ class AppUpdater(private val context: Context) {
         downloadUrl: String,
         version: String
     ) {
-        val fileName = "LightPods-v${version}.apk"
+        val fileName =
+            "LightPods-v${version}.apk"
+
+        _downloadProgress.value = DownloadProgress(
+            state = DownloadState.DOWNLOADING
+        )
+
         val request = DownloadManager.Request(
             Uri.parse(downloadUrl)
         ).apply {
-            setTitle("LightPods Update v$version")
+            setTitle("LightPods v$version")
             setDescription("Downloading update…")
             setNotificationVisibility(
                 DownloadManager.Request
-                    .VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+                    .VISIBILITY_VISIBLE
             )
             setDestinationInExternalPublicDir(
                 Environment.DIRECTORY_DOWNLOADS,
                 fileName
             )
             setMimeType(
-                "application/vnd.android.package-archive"
+                "application/vnd" +
+                    ".android.package-archive"
             )
         }
 
         val dm = context.getSystemService(
             Context.DOWNLOAD_SERVICE
         ) as DownloadManager
-        val downloadId = dm.enqueue(request)
+        activeDownloadId = dm.enqueue(request)
 
-        val receiver = object : BroadcastReceiver() {
-            override fun onReceive(
-                ctx: Context,
-                intent: Intent
-            ) {
-                val id = intent.getLongExtra(
-                    DownloadManager.EXTRA_DOWNLOAD_ID,
-                    -1
-                )
-                if (id != downloadId) return
-                ctx.unregisterReceiver(this)
-                installApk(fileName)
+        // Start polling progress
+        startProgressTracking(dm)
+
+        val receiver =
+            object : BroadcastReceiver() {
+                override fun onReceive(
+                    ctx: Context,
+                    intent: Intent
+                ) {
+                    val id = intent.getLongExtra(
+                        DownloadManager
+                            .EXTRA_DOWNLOAD_ID,
+                        -1
+                    )
+                    if (id != activeDownloadId) return
+                    ctx.unregisterReceiver(this)
+                    stopProgressTracking()
+
+                    _downloadProgress.value =
+                        DownloadProgress(
+                            state =
+                                DownloadState.COMPLETED,
+                            percent = 1f
+                        )
+
+                    installApk(fileName)
+                }
             }
-        }
 
         if (Build.VERSION.SDK_INT >=
             Build.VERSION_CODES.TIRAMISU
@@ -166,6 +220,105 @@ class AppUpdater(private val context: Context) {
         }
     }
 
+    private fun startProgressTracking(
+        dm: DownloadManager
+    ) {
+        progressRunnable = object : Runnable {
+            override fun run() {
+                val query = DownloadManager.Query()
+                    .setFilterById(activeDownloadId)
+                val cursor = dm.query(query)
+
+                if (cursor != null &&
+                    cursor.moveToFirst()
+                ) {
+                    val statusIdx = cursor
+                        .getColumnIndex(
+                            DownloadManager
+                                .COLUMN_STATUS
+                        )
+                    val downloadedIdx = cursor
+                        .getColumnIndex(
+                            DownloadManager
+                                .COLUMN_BYTES_DOWNLOADED_SO_FAR
+                        )
+                    val totalIdx = cursor
+                        .getColumnIndex(
+                            DownloadManager
+                                .COLUMN_TOTAL_SIZE_BYTES
+                        )
+
+                    if (statusIdx >= 0 &&
+                        downloadedIdx >= 0 &&
+                        totalIdx >= 0
+                    ) {
+                        val status =
+                            cursor.getInt(statusIdx)
+                        val downloaded =
+                            cursor.getLong(
+                                downloadedIdx
+                            )
+                        val total =
+                            cursor.getLong(totalIdx)
+
+                        val pct = if (total > 0)
+                            downloaded.toFloat() /
+                                total.toFloat()
+                        else 0f
+
+                        when (status) {
+                            DownloadManager
+                                .STATUS_RUNNING -> {
+                                _downloadProgress
+                                    .value =
+                                    DownloadProgress(
+                                        state =
+                                            DownloadState
+                                                .DOWNLOADING,
+                                        bytesDownloaded =
+                                            downloaded,
+                                        totalBytes =
+                                            total,
+                                        percent = pct
+                                    )
+                            }
+                            DownloadManager
+                                .STATUS_FAILED -> {
+                                _downloadProgress
+                                    .value =
+                                    DownloadProgress(
+                                        state =
+                                            DownloadState
+                                                .FAILED
+                                    )
+                                stopProgressTracking()
+                                cursor.close()
+                                return
+                            }
+                        }
+                    }
+                    cursor.close()
+                }
+                handler.postDelayed(
+                    this, 300
+                )
+            }
+        }
+        handler.post(progressRunnable!!)
+    }
+
+    private fun stopProgressTracking() {
+        progressRunnable?.let {
+            handler.removeCallbacks(it)
+        }
+        progressRunnable = null
+    }
+
+    fun resetProgress() {
+        _downloadProgress.value =
+            DownloadProgress()
+    }
+
     private fun installApk(fileName: String) {
         val file = File(
             Environment
@@ -181,7 +334,8 @@ class AppUpdater(private val context: Context) {
         ) {
             FileProvider.getUriForFile(
                 context,
-                "${context.packageName}.fileprovider",
+                "${context.packageName}" +
+                    ".fileprovider",
                 file
             )
         } else {
@@ -193,7 +347,8 @@ class AppUpdater(private val context: Context) {
         ).apply {
             setDataAndType(
                 uri,
-                "application/vnd.android.package-archive"
+                "application/vnd" +
+                    ".android.package-archive"
             )
             flags =
                 Intent.FLAG_ACTIVITY_NEW_TASK or

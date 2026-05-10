@@ -4,54 +4,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LightPods — Material You AirPods Companion</title>
+    <title>LightPods - Material You AirPods Companion</title>
     <meta name="description"
-        content="A Material Design 3 companion app for AirPods Pro clones. Real-time battery, ear detection, microphone tracking via BLE proximity scanning.">
+        content="A Material You companion app for AirPods-compatible earbuds with real-time battery, ear detection, microphone tracking, and BLE proximity scanning.">
     <meta name="author" content="Uzair Mughal">
-    <meta name="theme-color" content="#0A1A2E">
-    <meta property="og:title" content="LightPods — AirPods Companion App">
+    <meta name="theme-color" content="#f7faf2">
+    <meta property="og:title" content="LightPods - AirPods Companion App">
     <meta property="og:description"
-        content="Material You companion for AirPods Pro clones with real BLE battery parsing.">
+        content="A Pixel-style Material You companion for AirPods-compatible earbuds with real BLE battery parsing.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://lightpods.ct.ws/">
+    <meta property="og:image" content="https://lightpods.ct.ws/assets/icon.png">
+    <link rel="icon" href="./assets/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0"
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,1,0"
         rel="stylesheet">
     <style>
         :root {
-            --md-sys-color-primary: #a0c4ff;
-            --md-sys-color-on-primary: #003060;
-            --md-sys-color-primary-container: #164B82;
-            --md-sys-color-on-primary-container: #D1E4FF;
-            --md-sys-color-secondary: #BCC7DB;
-            --md-sys-color-on-secondary: #263141;
-            --md-sys-color-surface: #0E1117;
-            --md-sys-color-surface-dim: #0A0D12;
-            --md-sys-color-surface-container: #161A22;
-            --md-sys-color-surface-container-high: #1E222B;
-            --md-sys-color-surface-container-highest: #282D36;
-            --md-sys-color-on-surface: #E2E2E9;
-            --md-sys-color-on-surface-variant: #C3C6CF;
-            --md-sys-color-outline: #8D9199;
-            --md-sys-color-outline-variant: #43474E;
-            --md-sys-color-inverse-surface: #E2E2E9;
-            --md-sys-color-inverse-on-surface: #2F3036;
-            --md-sys-color-error: #FFB4AB;
-            --md-sys-color-success: #6DD58C;
-            --md-sys-shape-corner-xl: 28px;
-            --md-sys-shape-corner-lg: 20px;
-            --md-sys-shape-corner-md: 16px;
-            --md-sys-shape-corner-sm: 12px;
+            color-scheme: light;
+            --md-sys-color-primary: #006a60;
+            --md-sys-color-on-primary: #ffffff;
+            --md-sys-color-primary-container: #74f8e4;
+            --md-sys-color-on-primary-container: #00201d;
+            --md-sys-color-secondary: #4a635f;
+            --md-sys-color-secondary-container: #cce8e1;
+            --md-sys-color-tertiary: #456179;
+            --md-sys-color-tertiary-container: #cce5ff;
+            --md-sys-color-error-container: #ffdad6;
+            --md-sys-color-surface: #f7faf2;
+            --md-sys-color-surface-container-low: #ffffff;
+            --md-sys-color-surface-container: #eef2ea;
+            --md-sys-color-surface-container-high: #e7ebe4;
+            --md-sys-color-surface-container-highest: #dfe4dc;
+            --md-sys-color-on-surface: #181d1a;
+            --md-sys-color-on-surface-variant: #3f4946;
+            --md-sys-color-outline: #6f7976;
+            --md-sys-color-outline-variant: #bec9c4;
+            --md-sys-color-scrim: rgba(14, 20, 18, 0.18);
+            --md-sys-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+            --md-sys-elevation-2: 0 2px 6px rgba(0, 0, 0, 0.13), 0 8px 20px rgba(0, 0, 0, 0.08);
+            --shape-xs: 8px;
+            --shape-sm: 12px;
+            --shape-md: 18px;
+            --shape-lg: 24px;
+            --shape-xl: 32px;
+            --page-gutter: 24px;
+            --max-width: 1180px;
+            --font-display: "Google Sans", "Roboto", system-ui, sans-serif;
+            --font-body: "Roboto", system-ui, sans-serif;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                color-scheme: dark;
+                --md-sys-color-primary: #52dbc8;
+                --md-sys-color-on-primary: #003733;
+                --md-sys-color-primary-container: #005048;
+                --md-sys-color-on-primary-container: #74f8e4;
+                --md-sys-color-secondary: #b1ccc5;
+                --md-sys-color-secondary-container: #334b47;
+                --md-sys-color-tertiary: #acc9e5;
+                --md-sys-color-tertiary-container: #2d4960;
+                --md-sys-color-error-container: #93000a;
+                --md-sys-color-surface: #101513;
+                --md-sys-color-surface-container-low: #181d1a;
+                --md-sys-color-surface-container: #1c211e;
+                --md-sys-color-surface-container-high: #262b28;
+                --md-sys-color-surface-container-highest: #313633;
+                --md-sys-color-on-surface: #e0e4de;
+                --md-sys-color-on-surface-variant: #bec9c4;
+                --md-sys-color-outline: #89938f;
+                --md-sys-color-outline-variant: #3f4946;
+                --md-sys-color-scrim: rgba(0, 0, 0, 0.34);
+                --md-sys-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.5);
+                --md-sys-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.42);
+            }
         }
 
         *,
         *::before,
         *::after {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
@@ -60,569 +96,1141 @@
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background: var(--md-sys-color-surface);
+            margin: 0;
+            background:
+                radial-gradient(circle at 8% 6%, rgba(116, 248, 228, 0.30), transparent 24rem),
+                radial-gradient(circle at 92% 10%, rgba(204, 229, 255, 0.44), transparent 28rem),
+                var(--md-sys-color-surface);
             color: var(--md-sys-color-on-surface);
+            font-family: var(--font-body);
+            font-size: 16px;
             line-height: 1.6;
-            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
 
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-            vertical-align: middle;
+        a {
+            color: inherit;
         }
 
-        /* ━━━ Hero ━━━ */
-        .hero {
-            min-height: 100vh;
+        img {
+            display: block;
+            max-width: 100%;
+        }
+
+        .material-symbols-rounded {
+            font-family: "Material Symbols Rounded";
+            font-size: 1.25rem;
+            font-style: normal;
+            font-weight: 500;
+            line-height: 1;
+            font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 24;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: 16px;
+            top: 12px;
+            z-index: 20;
+            transform: translateY(-160%);
+            border-radius: 999px;
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            padding: 10px 16px;
+            text-decoration: none;
+            transition: transform 160ms ease;
+        }
+
+        .skip-link:focus {
+            transform: translateY(0);
+        }
+
+        .top-app-bar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: color-mix(in srgb, var(--md-sys-color-surface) 86%, transparent);
+            border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 62%, transparent);
+            backdrop-filter: blur(18px);
+        }
+
+        .top-app-bar__content {
             display: flex;
             align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            max-width: var(--max-width);
+            min-height: 72px;
+            margin: 0 auto;
+            padding: 0 var(--page-gutter);
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--md-sys-color-on-surface);
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .brand img {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            box-shadow: var(--md-sys-elevation-1);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: var(--md-sys-color-surface-container);
+        }
+
+        .nav-links a {
+            border-radius: 999px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 10px 16px;
+            text-decoration: none;
+            transition: background 160ms ease, color 160ms ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a:focus-visible {
+            background: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-surface);
+            outline: none;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 60% 50% at 50% 30%, rgba(160, 196, 255, 0.12) 0%, transparent 70%),
-                radial-gradient(ellipse 40% 60% at 70% 70%, rgba(22, 75, 130, 0.15) 0%, transparent 60%);
-            pointer-events: none;
-        }
-
-        .hero-grid {
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--md-sys-color-outline-variant) 1px, transparent 1px),
-                linear-gradient(90deg, var(--md-sys-color-outline-variant) 1px, transparent 1px);
-            background-size: 80px 80px;
-            opacity: 0.06;
-            mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 20%, transparent 70%);
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            max-width: 800px;
+            gap: 10px;
+            min-height: 48px;
+            border: 0;
+            border-radius: 999px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-size: 0.94rem;
+            font-weight: 700;
             padding: 0 24px;
+            text-decoration: none;
+            transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
+            white-space: nowrap;
         }
 
-        .hero-badge {
+        .button:focus-visible,
+        .icon-button:focus-visible {
+            outline: 3px solid color-mix(in srgb, var(--md-sys-color-primary) 45%, transparent);
+            outline-offset: 3px;
+        }
+
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button--filled {
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            box-shadow: var(--md-sys-elevation-1);
+        }
+
+        .button--tonal {
+            background: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .button--outlined {
+            border: 1px solid var(--md-sys-color-outline-variant);
+            background: transparent;
+            color: var(--md-sys-color-primary);
+        }
+
+        .icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--md-sys-color-surface-container);
+            color: var(--md-sys-color-on-surface-variant);
+            text-decoration: none;
+        }
+
+        main {
+            padding-bottom: 88px;
+        }
+
+        .section {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 88px var(--page-gutter);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 480px);
+            align-items: center;
+            gap: 56px;
+            min-height: calc(100svh - 72px);
+            padding-top: 48px;
+            padding-bottom: 64px;
+        }
+
+        .hero__copy {
+            max-width: 650px;
+        }
+
+        .eyebrow {
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            min-height: 36px;
+            border-radius: 999px;
             background: var(--md-sys-color-surface-container);
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: 100px;
-            padding: 8px 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
             color: var(--md-sys-color-primary);
-            letter-spacing: 0.02em;
-            margin-bottom: 32px;
-            animation: fadeUp 0.8s ease-out;
+            font-family: var(--font-display);
+            font-size: 0.84rem;
+            font-weight: 700;
+            padding: 0 14px;
         }
 
-        .hero-badge .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--md-sys-color-success);
-            animation: pulse 2s ease infinite;
+        .eyebrow .material-symbols-rounded {
+            font-size: 1rem;
         }
 
-        .hero h1 {
-            font-size: clamp(3rem, 8vw, 5.5rem);
-            font-weight: 900;
-            letter-spacing: -0.03em;
-            line-height: 1.05;
-            margin-bottom: 20px;
-            animation: fadeUp 0.8s ease-out 0.1s both;
+        h1,
+        h2,
+        h3,
+        p {
+            margin: 0;
         }
 
-        .hero h1 .gradient {
-            background: linear-gradient(135deg, var(--md-sys-color-primary), #6dd5ed, var(--md-sys-color-primary));
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            animation: gradientShift 6s ease infinite;
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-display);
+            letter-spacing: 0;
         }
 
-        .hero p {
-            font-size: 1.15rem;
-            color: var(--md-sys-color-on-surface-variant);
-            max-width: 560px;
-            margin: 0 auto 40px;
-            font-weight: 400;
-            animation: fadeUp 0.8s ease-out 0.2s both;
+        h1 {
+            max-width: 680px;
+            margin-top: 20px;
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 0.96;
         }
 
-        .hero-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-            animation: fadeUp 0.8s ease-out 0.3s both;
-        }
-
-        .btn-primary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary);
-            border: none;
-            border-radius: 100px;
-            padding: 16px 32px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 8px rgba(160, 196, 255, 0.15);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 20px rgba(160, 196, 255, 0.3);
-        }
-
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            background: transparent;
-            color: var(--md-sys-color-primary);
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: 100px;
-            padding: 16px 32px;
-            font-size: 0.95rem;
-            font-weight: 600;
-            cursor: pointer;
-            text-decoration: none;
-            transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-        }
-
-        .btn-secondary:hover {
-            background: var(--md-sys-color-surface-container);
-            border-color: var(--md-sys-color-primary);
-            transform: translateY(-2px);
-        }
-
-        /* ━━━ Features ━━━ */
-        .features {
-            padding: 120px 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: var(--md-sys-color-primary);
-            margin-bottom: 12px;
-        }
-
-        .section-title {
-            font-size: clamp(2rem, 4vw, 3rem);
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 16px;
-        }
-
-        .section-subtitle {
-            font-size: 1.05rem;
-            color: var(--md-sys-color-on-surface-variant);
+        .hero__lead {
             max-width: 600px;
-            margin-bottom: 60px;
+            margin-top: 24px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 1.16rem;
+            line-height: 1.65;
+        }
+
+        .hero__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .hero__stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            max-width: 620px;
+            margin-top: 36px;
+        }
+
+        .stat {
+            min-height: 104px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-lg);
+            background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 88%, transparent);
+            padding: 18px;
+        }
+
+        .stat strong {
+            display: block;
+            color: var(--md-sys-color-primary);
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            line-height: 1.1;
+        }
+
+        .stat span {
+            display: block;
+            margin-top: 8px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.86rem;
+            line-height: 1.35;
+        }
+
+        .device-stage {
+            display: grid;
+            place-items: center;
+            min-height: 560px;
+            position: relative;
+        }
+
+        .device-stage::before {
+            content: "";
+            position: absolute;
+            width: 82%;
+            aspect-ratio: 1;
+            border-radius: 48px;
+            background:
+                linear-gradient(135deg, rgba(116, 248, 228, 0.28), rgba(204, 229, 255, 0.28)),
+                var(--md-sys-color-surface-container);
+            transform: rotate(8deg);
+            box-shadow: var(--md-sys-elevation-2);
+        }
+
+        .pixel {
+            position: relative;
+            width: min(100%, 342px);
+            min-height: 700px;
+            border: 10px solid #1b1f1d;
+            border-radius: 42px;
+            background: #101513;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+            overflow: hidden;
+        }
+
+        .pixel::before {
+            content: "";
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            z-index: 2;
+            width: 82px;
+            height: 26px;
+            border-radius: 999px;
+            background: #050806;
+            transform: translateX(-50%);
+        }
+
+        .app-screen {
+            min-height: 680px;
+            background:
+                radial-gradient(circle at 22% 10%, rgba(116, 248, 228, 0.28), transparent 13rem),
+                #f7faf2;
+            color: #181d1a;
+            padding: 22px 16px 18px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #202622;
+            font-family: var(--font-display);
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 0 6px 18px;
+        }
+
+        .screen-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .screen-top img {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+        }
+
+        .screen-title {
+            flex: 1;
+        }
+
+        .screen-title strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+
+        .screen-title span {
+            display: block;
+            color: #4f5d58;
+            font-size: 0.78rem;
+        }
+
+        .pods-sheet {
+            margin-top: 24px;
+            border-radius: 30px;
+            background: #ffffff;
+            box-shadow: 0 14px 40px rgba(12, 24, 21, 0.14);
+            padding: 18px;
+        }
+
+        .pods-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            align-items: end;
+            gap: 10px;
+            min-height: 146px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #e4fff8, #eef5ff);
+            padding: 18px;
+        }
+
+        .pod {
+            display: grid;
+            justify-items: center;
+            gap: 10px;
+        }
+
+        .bud {
+            width: 42px;
+            height: 92px;
+            border-radius: 26px 26px 18px 18px;
+            background: linear-gradient(180deg, #ffffff, #dfe7e3);
+            box-shadow: inset -8px -12px 18px rgba(82, 97, 91, 0.18), 0 10px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .case {
+            width: 76px;
+            height: 58px;
+            border-radius: 24px 24px 28px 28px;
+            background: linear-gradient(180deg, #ffffff, #dfe7e3);
+            box-shadow: inset 0 -12px 18px rgba(82, 97, 91, 0.14), 0 10px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .battery-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border-radius: 999px;
+            background: #d8f4ed;
+            color: #005048;
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 6px 9px;
+        }
+
+        .screen-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 66px;
+            margin-top: 12px;
+            border-radius: 22px;
+            background: #eef2ea;
+            padding: 12px;
+        }
+
+        .screen-row .material-symbols-rounded {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            background: #cce8e1;
+            color: #006a60;
+        }
+
+        .screen-row strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            line-height: 1.25;
+        }
+
+        .screen-row span {
+            display: block;
+            color: #4f5d58;
+            font-size: 0.78rem;
+        }
+
+        .screen-nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 18px;
+            border-radius: 24px;
+            background: #eef2ea;
+            padding: 8px;
+        }
+
+        .screen-nav span {
+            display: grid;
+            place-items: center;
+            min-height: 44px;
+            border-radius: 18px;
+            color: #51615c;
+        }
+
+        .screen-nav span:first-child {
+            background: #cce8e1;
+            color: #005048;
+        }
+
+        .section-heading {
+            max-width: 720px;
+            margin-bottom: 32px;
+        }
+
+        .section-heading h2 {
+            margin-top: 12px;
+            font-size: 2.75rem;
+            line-height: 1.08;
+        }
+
+        .section-heading p {
+            margin-top: 16px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 1.05rem;
         }
 
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
         }
 
         .feature-card {
-            background: var(--md-sys-color-surface-container);
+            min-height: 258px;
             border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: var(--md-sys-shape-corner-xl);
-            padding: 32px;
-            transition: all 0.35s cubic-bezier(0.2, 0, 0, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, var(--md-sys-color-primary), transparent);
-            opacity: 0;
-            transition: opacity 0.35s;
+            border-radius: var(--shape-lg);
+            background: var(--md-sys-color-surface-container-low);
+            padding: 22px;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
         }
 
         .feature-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(160, 196, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            border-color: color-mix(in srgb, var(--md-sys-color-primary) 44%, var(--md-sys-color-outline-variant));
+            box-shadow: var(--md-sys-elevation-2);
+            transform: translateY(-2px);
         }
 
-        .feature-card:hover::before {
-            opacity: 1;
-        }
-
-        .feature-icon {
+        .feature-card .material-symbols-rounded {
+            display: grid;
+            place-items: center;
             width: 52px;
             height: 52px;
-            border-radius: var(--md-sys-shape-corner-md);
+            border-radius: 18px;
+            margin-bottom: 28px;
             background: var(--md-sys-color-primary-container);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
             color: var(--md-sys-color-on-primary-container);
-            font-size: 1.5rem;
         }
 
         .feature-card h3 {
-            font-size: 1.15rem;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 1.08rem;
+            line-height: 1.28;
         }
 
         .feature-card p {
-            font-size: 0.9rem;
+            margin-top: 10px;
             color: var(--md-sys-color-on-surface-variant);
-            line-height: 1.6;
-        }
-
-        /* ━━━ Protocol ━━━ */
-        .protocol {
-            padding: 120px 24px;
-            max-width: 1200px;
-            margin: 0 auto;
+            font-size: 0.94rem;
         }
 
         .protocol-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
         }
 
         .protocol-card {
-            background: var(--md-sys-color-surface-container);
+            min-height: 132px;
             border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: var(--md-sys-shape-corner-lg);
-            padding: 24px;
+            border-radius: var(--shape-md);
+            background: var(--md-sys-color-surface-container);
+            padding: 16px;
         }
 
-        .protocol-card .label {
+        .protocol-card span {
+            color: var(--md-sys-color-on-surface-variant);
             font-size: 0.75rem;
-            color: var(--md-sys-color-outline);
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            font-weight: 600;
-            margin-bottom: 6px;
-        }
-
-        .protocol-card .value {
-            font-size: 1.3rem;
             font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .protocol-card strong {
+            display: block;
+            margin-top: 10px;
             color: var(--md-sys-color-primary);
-        }
-
-        .protocol-card .detail {
-            font-size: 0.8rem;
-            color: var(--md-sys-color-on-surface-variant);
-            margin-top: 4px;
-        }
-
-        /* ━━━ CTA ━━━ */
-        .cta {
-            padding: 120px 24px;
-            text-align: center;
-        }
-
-        .cta-card {
-            max-width: 700px;
-            margin: 0 auto;
-            background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-surface-container-high));
-            border: 1px solid rgba(160, 196, 255, 0.15);
-            border-radius: var(--md-sys-shape-corner-xl);
-            padding: 64px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -30%;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(160, 196, 255, 0.1), transparent 70%);
-            pointer-events: none;
-        }
-
-        .cta-card h2 {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            position: relative;
-        }
-
-        .cta-card p {
-            color: var(--md-sys-color-on-surface-variant);
-            margin-bottom: 32px;
+            font-family: var(--font-display);
             font-size: 1rem;
-            position: relative;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
         }
 
-        /* ━━━ Footer ━━━ */
+        .protocol-card p {
+            margin-top: 8px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+
+        .privacy-band {
+            background:
+                linear-gradient(135deg,
+                    color-mix(in srgb, var(--md-sys-color-primary-container) 74%, transparent),
+                    color-mix(in srgb, var(--md-sys-color-tertiary-container) 74%, transparent));
+        }
+
+        .privacy-band__inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 28px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 72px var(--page-gutter);
+        }
+
+        .privacy-band h2 {
+            font-size: 2rem;
+            line-height: 1.14;
+        }
+
+        .privacy-band p {
+            max-width: 680px;
+            margin-top: 12px;
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
         footer {
             border-top: 1px solid var(--md-sys-color-outline-variant);
-            padding: 40px 24px;
-            text-align: center;
         }
 
-        footer p {
-            font-size: 0.8rem;
-            color: var(--md-sys-color-outline);
+        .footer-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 30px var(--page-gutter);
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.88rem;
         }
 
-        footer a {
+        .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-links a {
             color: var(--md-sys-color-primary);
+            font-weight: 700;
             text-decoration: none;
         }
 
-        footer a:hover {
-            text-decoration: underline;
+        .mobile-nav {
+            display: none;
         }
 
-        /* ━━━ Animations ━━━ */
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
+        @media (max-width: 1040px) {
+            h1 {
+                font-size: 3.55rem;
             }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes gradientShift {
-
-            0%,
-            100% {
-                background-position: 0% 50%;
+            .hero {
+                grid-template-columns: 1fr;
+                min-height: 0;
             }
 
-            50% {
-                background-position: 100% 50%;
-            }
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
+            .hero__copy {
+                max-width: 760px;
             }
 
-            50% {
-                opacity: 0.4;
-            }
-        }
-
-        /* ━━━ Responsive ━━━ */
-        @media (max-width: 640px) {
-            .hero h1 {
-                font-size: 2.5rem;
+            .device-stage {
+                min-height: 500px;
             }
 
-            .hero-actions {
-                flex-direction: column;
-                align-items: center;
+            .pixel {
+                width: min(100%, 318px);
+                min-height: 650px;
+            }
+
+            .app-screen {
+                min-height: 630px;
             }
 
             .feature-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
             .protocol-grid {
-                grid-template-columns: 1fr 1fr;
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 720px) {
+            :root {
+                --page-gutter: 16px;
             }
 
-            .cta-card {
-                padding: 40px 24px;
+            body {
+                font-size: 15px;
+            }
+
+            .top-app-bar__content {
+                min-height: 64px;
+            }
+
+            .nav-links,
+            .top-app-bar .button {
+                display: none;
+            }
+
+            .brand img {
+                width: 34px;
+                height: 34px;
+            }
+
+            .section {
+                padding-top: 56px;
+                padding-bottom: 56px;
+            }
+
+            .hero {
+                gap: 34px;
+                padding-top: 36px;
+            }
+
+            h1 {
+                font-size: 2.72rem;
+                line-height: 1;
+            }
+
+            .hero__lead {
+                font-size: 1rem;
+            }
+
+            .hero__actions {
+                display: grid;
+                grid-template-columns: 1fr;
+            }
+
+            .button {
+                width: 100%;
+            }
+
+            .hero__stats {
+                grid-template-columns: 1fr;
+            }
+
+            .device-stage {
+                min-height: 460px;
+            }
+
+            .device-stage::before {
+                width: 92%;
+                border-radius: 36px;
+            }
+
+            .pixel {
+                width: min(100%, 292px);
+                min-height: 590px;
+                border-width: 8px;
+                border-radius: 36px;
+            }
+
+            .app-screen {
+                min-height: 574px;
+                padding: 20px 13px 14px;
+            }
+
+            .pods-sheet {
+                padding: 14px;
+            }
+
+            .pods-visual {
+                min-height: 126px;
+                padding: 14px 10px;
+            }
+
+            .bud {
+                width: 35px;
+                height: 78px;
+            }
+
+            .case {
+                width: 66px;
+                height: 50px;
+            }
+
+            .section-heading h2 {
+                font-size: 2rem;
+            }
+
+            .feature-grid,
+            .protocol-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                min-height: 0;
+            }
+
+            .privacy-band__inner {
+                grid-template-columns: 1fr;
+                padding-top: 52px;
+                padding-bottom: 52px;
+            }
+
+            .footer-inner {
+                display: grid;
+                justify-items: start;
+                padding-bottom: 104px;
+            }
+
+            .mobile-nav {
+                position: fixed;
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                z-index: 12;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+                border: 1px solid var(--md-sys-color-outline-variant);
+                border-radius: 28px;
+                background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 90%, transparent);
+                box-shadow: var(--md-sys-elevation-2);
+                padding: 8px;
+                backdrop-filter: blur(16px);
+            }
+
+            .mobile-nav a {
+                display: grid;
+                justify-items: center;
+                gap: 4px;
+                border-radius: 20px;
+                color: var(--md-sys-color-on-surface-variant);
+                font-size: 0.72rem;
+                font-weight: 700;
+                padding: 8px 4px;
+                text-decoration: none;
+            }
+
+            .mobile-nav a.active {
+                background: var(--md-sys-color-secondary-container);
+                color: var(--md-sys-color-primary);
+            }
+
+            .mobile-nav .material-symbols-rounded {
+                font-size: 1.18rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
             }
         }
     </style>
 </head>
 
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-    <!-- Hero -->
-    <section class="hero">
-        <div class="hero-grid"></div>
-        <div class="hero-content">
-            <div class="hero-badge">
-                <span class="dot"></span>
-                Material You · Android
-            </div>
-            <h1><span class="gradient">LightPods</span></h1>
-            <p>A premium Material Design 3 companion app for AirPods Pro clones. Real-time battery, ear detection, and
-                microphone tracking via BLE proximity scanning.</p>
-            <div class="hero-actions">
-                <a href="https://github.com/uzairdeveloper223/lightpods/releases" class="btn-primary">
-                    <span class="material-symbols-outlined">download</span>
-                    Download APK
-                </a>
-                <a href="https://github.com/uzairdeveloper223/lightpods" class="btn-secondary">
-                    <span class="material-symbols-outlined">code</span>
-                    Source Code
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features -->
-    <section class="features" id="features">
-        <p class="section-label">Capabilities</p>
-        <h2 class="section-title">Everything your clone pods need</h2>
-        <p class="section-subtitle">Built by reverse-engineering Apple's proprietary BLE Continuity Protocol and HFP
-            vendor extensions.</p>
-
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="material-symbols-outlined">battery_full</span>
-                </div>
-                <h3>Per-Pod Battery</h3>
-                <p>Real battery levels for left pod, right pod, and case — decoded from Apple's BLE proximity pairing
-                    nibbles, not generic HFP guesses.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="material-symbols-outlined">mic</span>
-                </div>
-                <h3>Microphone Detection</h3>
-                <p>Identifies which pod currently holds the active microphone by parsing the status byte's primary pod
-                    bit and case flip logic.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="material-symbols-outlined">hearing</span>
-                </div>
-                <h3>Ear Detection</h3>
-                <p>Knows when each pod is in your ear or out, using the BLE status bits — the same data Apple uses for
-                    automatic play/pause.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="material-symbols-outlined">notifications_active</span>
-                </div>
-                <h3>System Overlay</h3>
-                <p>iOS-style connection popup appears when your pods are detected nearby. Smart dismiss logic — won't
-                    spam you after you close it.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="material-symbols-outlined">speed</span>
-                </div>
-                <h3>Background Monitoring</h3>
-                <p>Lightweight foreground service with battery optimization exemption. Live battery in the notification
-                    bar, even when the app isn't open.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <span class="material-symbols-outlined">palette</span>
-                </div>
-                <h3>Material You</h3>
-                <p>Dynamic color theming on Android 12+, with manual dark/light/system toggle. Every pixel follows
-                    Material Design 3 specs.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Protocol Details -->
-    <section class="protocol" id="protocol">
-        <p class="section-label">Under the Hood</p>
-        <h2 class="section-title">Decoded Protocol</h2>
-        <p class="section-subtitle">Based on Apple Continuity Protocol reverse engineering and btmon packet analysis.
-        </p>
-
-        <div class="protocol-grid">
-            <div class="protocol-card">
-                <p class="label">BLE Type</p>
-                <p class="value">0x07</p>
-                <p class="detail">Proximity Pairing</p>
-            </div>
-            <div class="protocol-card">
-                <p class="label">Company ID</p>
-                <p class="value">0x004C</p>
-                <p class="detail">Apple, Inc.</p>
-            </div>
-            <div class="protocol-card">
-                <p class="label">Battery Format</p>
-                <p class="value">4-bit nibbles</p>
-                <p class="detail">0–10 = 0–100%, 15 = N/A</p>
-            </div>
-            <div class="protocol-card">
-                <p class="label">HFP Fallback</p>
-                <p class="value">AT+IPHONEACCEV</p>
-                <p class="detail">(value+1) × 10 = %</p>
-            </div>
-            <div class="protocol-card">
-                <p class="label">Microphone</p>
-                <p class="value">bit 5 XOR</p>
-                <p class="detail">Status byte flip detection</p>
-            </div>
-            <div class="protocol-card">
-                <p class="label">Chipset</p>
-                <p class="value">Qualcomm QCC</p>
-                <p class="detail">BR/EDR + BLE dual mode</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta">
-        <div class="cta-card">
-            <h2>Open Source & Free</h2>
-            <p>Built in Kotlin with Jetpack Compose. No tracking, no ads, no subscriptions. Just pure engineering.</p>
-            <a href="https://github.com/uzairdeveloper223/lightpods" class="btn-primary">
-                <span class="material-symbols-outlined">star</span>
-                Star on GitHub
+    <header class="top-app-bar" aria-label="Primary navigation">
+        <div class="top-app-bar__content">
+            <a class="brand" href="https://lightpods.ct.ws/" aria-label="LightPods home">
+                <img src="./assets/icon.png" alt="" width="38" height="38">
+                <span>LightPods</span>
+            </a>
+            <nav class="nav-links" aria-label="Site sections">
+                <a href="#features">Features</a>
+                <a href="#protocol">Protocol</a>
+                <a href="./privacy/">Privacy</a>
+            </nav>
+            <a class="button button--filled" href="https://github.com/uzairdeveloper223/lightpods/releases">
+                <span class="material-symbols-rounded" aria-hidden="true">download</span>
+                Download
             </a>
         </div>
-    </section>
+    </header>
 
-    <!-- Footer -->
+    <main id="main">
+        <section class="section hero" aria-labelledby="hero-title">
+            <div class="hero__copy">
+                <div class="eyebrow">
+                    <span class="material-symbols-rounded" aria-hidden="true">auto_awesome</span>
+                    Pixel-style Material You for Android
+                </div>
+                <h1 id="hero-title">LightPods</h1>
+                <p class="hero__lead">A Material Design 3 companion for AirPods-compatible earbuds. It shows per-pod
+                    battery, ear detection, microphone status, and case state from real BLE proximity data.</p>
+                <div class="hero__actions">
+                    <a class="button button--filled" href="https://github.com/uzairdeveloper223/lightpods/releases">
+                        <span class="material-symbols-rounded" aria-hidden="true">download</span>
+                        Download APK
+                    </a>
+                    <a class="button button--tonal" href="https://github.com/uzairdeveloper223/lightpods">
+                        <span class="material-symbols-rounded" aria-hidden="true">code</span>
+                        Source Code
+                    </a>
+                </div>
+                <div class="hero__stats" aria-label="LightPods highlights">
+                    <div class="stat">
+                        <strong>BLE</strong>
+                        <span>Apple proximity advertisements decoded locally.</span>
+                    </div>
+                    <div class="stat">
+                        <strong>0 ads</strong>
+                        <span>No analytics, accounts, servers, or subscriptions.</span>
+                    </div>
+                    <div class="stat">
+                        <strong>M3</strong>
+                        <span>Dynamic color surfaces tuned for Android 12+.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="device-stage" aria-label="LightPods app preview">
+                <div class="pixel" role="img" aria-label="Pixel phone mockup showing LightPods battery screen">
+                    <div class="app-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>5G&nbsp;&nbsp;86%</span>
+                        </div>
+                        <div class="screen-top">
+                            <img src="./assets/icon.png" alt="" width="42" height="42">
+                            <div class="screen-title">
+                                <strong>AirPods Pro</strong>
+                                <span>Nearby - BLE connected</span>
+                            </div>
+                            <span class="material-symbols-rounded" aria-hidden="true">settings</span>
+                        </div>
+                        <div class="pods-sheet">
+                            <div class="pods-visual" aria-hidden="true">
+                                <div class="pod">
+                                    <div class="bud"></div>
+                                    <span class="battery-chip">L 90%</span>
+                                </div>
+                                <div class="pod">
+                                    <div class="case"></div>
+                                    <span class="battery-chip">Case 70%</span>
+                                </div>
+                                <div class="pod">
+                                    <div class="bud"></div>
+                                    <span class="battery-chip">R 80%</span>
+                                </div>
+                            </div>
+                            <div class="screen-row">
+                                <span class="material-symbols-rounded" aria-hidden="true">hearing</span>
+                                <div>
+                                    <strong>Ear detection active</strong>
+                                    <span>Left in ear, right in case</span>
+                                </div>
+                            </div>
+                            <div class="screen-row">
+                                <span class="material-symbols-rounded" aria-hidden="true">mic</span>
+                                <div>
+                                    <strong>Microphone selected</strong>
+                                    <span>Primary pod: left</span>
+                                </div>
+                            </div>
+                            <div class="screen-row">
+                                <span class="material-symbols-rounded" aria-hidden="true">notifications</span>
+                                <div>
+                                    <strong>Overlay ready</strong>
+                                    <span>Popup only when nearby</span>
+                                </div>
+                            </div>
+                            <div class="screen-nav" aria-hidden="true">
+                                <span class="material-symbols-rounded">home</span>
+                                <span class="material-symbols-rounded">bluetooth</span>
+                                <span class="material-symbols-rounded">tune</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="features" aria-labelledby="features-title">
+            <div class="section-heading">
+                <div class="eyebrow">
+                    <span class="material-symbols-rounded" aria-hidden="true">widgets</span>
+                    App capabilities
+                </div>
+                <h2 id="features-title">Real earbud state, not generic Bluetooth guesses.</h2>
+                <p>LightPods is built around the data your earbuds already broadcast, then presents it with Material You
+                    surfaces that feel native on modern Android.</p>
+            </div>
+
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <span class="material-symbols-rounded" aria-hidden="true">battery_full</span>
+                    <h3>Per-pod battery</h3>
+                    <p>Left pod, right pod, and case levels are decoded from Apple proximity pairing nibbles.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="material-symbols-rounded" aria-hidden="true">mic</span>
+                    <h3>Microphone tracking</h3>
+                    <p>Primary pod status is parsed from the BLE status byte and mirrored in the Android UI.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="material-symbols-rounded" aria-hidden="true">hearing</span>
+                    <h3>Ear detection</h3>
+                    <p>In-ear and case state are shown as live app rows, notifications, and popup context.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="material-symbols-rounded" aria-hidden="true">notifications_active</span>
+                    <h3>System overlay</h3>
+                    <p>A connection popup appears when pods are nearby, with dismiss behavior that avoids repeated spam.
+                    </p>
+                </article>
+                <article class="feature-card">
+                    <span class="material-symbols-rounded" aria-hidden="true">speed</span>
+                    <h3>Background monitor</h3>
+                    <p>A lightweight foreground service keeps battery status fresh while the main app is closed.</p>
+                </article>
+                <article class="feature-card">
+                    <span class="material-symbols-rounded" aria-hidden="true">palette</span>
+                    <h3>Dynamic color</h3>
+                    <p>Android 12+ dynamic color, light and dark themes, and Material 3 component spacing.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="section" id="protocol" aria-labelledby="protocol-title">
+            <div class="section-heading">
+                <div class="eyebrow">
+                    <span class="material-symbols-rounded" aria-hidden="true">memory</span>
+                    Under the hood
+                </div>
+                <h2 id="protocol-title">Decoded protocol details.</h2>
+                <p>Based on Apple Continuity Protocol reverse engineering and btmon packet analysis.</p>
+            </div>
+
+            <div class="protocol-grid">
+                <article class="protocol-card">
+                    <span>BLE type</span>
+                    <strong>0x07</strong>
+                    <p>Proximity pairing.</p>
+                </article>
+                <article class="protocol-card">
+                    <span>Company ID</span>
+                    <strong>0x004C</strong>
+                    <p>Apple, Inc.</p>
+                </article>
+                <article class="protocol-card">
+                    <span>Battery</span>
+                    <strong>4-bit nibbles</strong>
+                    <p>0-10 = 0-100%, 15 = N/A.</p>
+                </article>
+                <article class="protocol-card">
+                    <span>Fallback</span>
+                    <strong>AT+IPHONEACCEV</strong>
+                    <p>(value + 1) x 10.</p>
+                </article>
+                <article class="protocol-card">
+                    <span>Microphone</span>
+                    <strong>bit 5 XOR</strong>
+                    <p>Status byte flip detection.</p>
+                </article>
+                <article class="protocol-card">
+                    <span>Chipset</span>
+                    <strong>Qualcomm QCC</strong>
+                    <p>BR/EDR and BLE dual mode.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="privacy-band" aria-labelledby="privacy-title">
+            <div class="privacy-band__inner">
+                <div>
+                    <h2 id="privacy-title">Free, open source, and offline by design.</h2>
+                    <p>No analytics, crash reporters, advertising SDKs, user accounts, cloud servers, or network
+                        telemetry. Bluetooth data stays on your device.</p>
+                </div>
+                <a class="button button--filled" href="./privacy/">
+                    <span class="material-symbols-rounded" aria-hidden="true">shield</span>
+                    Privacy Policy
+                </a>
+            </div>
+        </section>
+    </main>
+
     <footer>
-        <p>
-            Made by <a href="https://uzair.is-a.dev" target="_blank">Uzair Mughal</a> ·
-            <a href="https://lightpods.ct.ws/privacy/index.html" target="_blank">Privacy Policy</a> ·
-            <a href="https://github.com/uzairdeveloper223/lightpods" target="_blank">GitHub</a>
-        </p>
-        <p style="margin-top: 8px;">© 2026 LightPods. Released under GPLv3.</p>
+        <div class="footer-inner">
+            <p>&copy; 2026 LightPods by <a href="https://uzair.is-a.dev">Uzair Mughal</a>. Released under GPLv3.</p>
+            <div class="footer-links">
+                <a href="./privacy/">Privacy</a>
+                <a href="https://github.com/uzairdeveloper223/lightpods">GitHub</a>
+                <a href="https://github.com/uzairdeveloper223/lightpods/releases">Releases</a>
+            </div>
+        </div>
     </footer>
 
+    <nav class="mobile-nav" aria-label="Mobile navigation">
+        <a href="#main" data-section="main" class="active">
+            <span class="material-symbols-rounded" aria-hidden="true">home</span>
+            Home
+        </a>
+        <a href="#features" data-section="features">
+            <span class="material-symbols-rounded" aria-hidden="true">widgets</span>
+            Features
+        </a>
+        <a href="#protocol" data-section="protocol">
+            <span class="material-symbols-rounded" aria-hidden="true">memory</span>
+            Protocol
+        </a>
+        <a href="./privacy/">
+            <span class="material-symbols-rounded" aria-hidden="true">shield</span>
+            Privacy
+        </a>
+    </nav>
+    <script>
+        const navItems = [...document.querySelectorAll(".mobile-nav a[data-section]")];
+        const sections = navItems
+            .map((item) => document.getElementById(item.dataset.section))
+            .filter(Boolean);
+
+        const setActiveSection = (id) => {
+            navItems.forEach((item) => {
+                item.classList.toggle("active", item.dataset.section === id);
+            });
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            const visible = entries
+                .filter((entry) => entry.isIntersecting)
+                .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+            if (visible) {
+                setActiveSection(visible.target.id);
+            }
+        }, {
+            rootMargin: "-25% 0px -55% 0px",
+            threshold: [0.1, 0.25, 0.5, 0.75]
+        });
+
+        sections.forEach((section) => observer.observe(section));
+    </script>
 </body>
 
 </html>

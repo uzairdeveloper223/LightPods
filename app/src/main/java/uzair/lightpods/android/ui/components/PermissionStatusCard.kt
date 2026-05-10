@@ -27,6 +27,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,50 +53,80 @@ data class PermissionStatus(
 
 @Composable
 fun PermissionStatusCard(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onRequestNotificationPermission: (() -> Unit)? = null,
+    showGrantedStatuses: Boolean = false
 ) {
     val context = LocalContext.current
     var statuses by remember {
         mutableStateOf(
-            checkAllStatuses(context)
+            checkAllStatuses(
+                context,
+                onRequestNotificationPermission
+            )
         )
     }
 
     LaunchedEffect(Unit) {
         while (true) {
             delay(2000)
-            statuses = checkAllStatuses(context)
+            statuses = checkAllStatuses(
+                context,
+                onRequestNotificationPermission
+            )
         }
     }
 
-    val allGood = statuses.all { it.granted }
-    if (allGood) return
+    val missingStatuses = statuses.filterNot {
+        it.granted
+    }
+    val visibleStatuses = if (showGrantedStatuses) {
+        statuses
+    } else {
+        missingStatuses
+    }
+    if (visibleStatuses.isEmpty()) return
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(
             containerColor =
                 MaterialTheme.colorScheme
-                    .errorContainer.copy(alpha = 0.3f)
+                    .errorContainer.copy(alpha = 0.22f)
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(18.dp)
         ) {
             Text(
-                text = "Setup Required",
+                text = if (showGrantedStatuses) {
+                    "Permission status"
+                } else {
+                    "Needs attention"
+                },
                 style = MaterialTheme
                     .typography.titleMedium.copy(
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.Bold
                     ),
                 color = MaterialTheme
                     .colorScheme.onSurface
             )
+            Text(
+                text = if (showGrantedStatuses) {
+                    "Green items are ready. Red items still need permission."
+                } else {
+                    "Enable the missing permissions for live scanning and popups."
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme
+                    .colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 3.dp)
+            )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            statuses.forEach { status ->
+            visibleStatuses.forEach { status ->
                 StatusRow(status)
             }
         }
@@ -153,21 +184,32 @@ private fun StatusRow(status: PermissionStatus) {
         }
 
         if (!status.granted) {
-            Text(
-                text = "Fix →",
-                style = MaterialTheme
-                    .typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                color = MaterialTheme
-                    .colorScheme.primary
-            )
+            Surface(
+                shape = RoundedCornerShape(999.dp),
+                color = MaterialTheme.colorScheme
+                    .primary.copy(alpha = 0.12f),
+                contentColor =
+                    MaterialTheme.colorScheme.primary
+            ) {
+                Text(
+                    text = "Fix",
+                    style = MaterialTheme
+                        .typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 7.dp
+                    )
+                )
+            }
         }
     }
 }
 
 private fun checkAllStatuses(
-    context: Context
+    context: Context,
+    onRequestNotificationPermission: (() -> Unit)?
 ): List<PermissionStatus> {
     val statuses = mutableListOf<PermissionStatus>()
 
@@ -285,7 +327,9 @@ private fun checkAllStatuses(
                 label = "Notifications",
                 granted = hasNotif,
                 fixAction = {
-                    openAppSettings(context)
+                    onRequestNotificationPermission
+                        ?.invoke()
+                        ?: openAppSettings(context)
                 }
             )
         )

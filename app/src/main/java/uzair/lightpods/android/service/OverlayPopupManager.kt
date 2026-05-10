@@ -2,6 +2,7 @@ package uzair.lightpods.android.service
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -20,6 +21,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import uzair.lightpods.android.R
 import uzair.lightpods.android.bluetooth.BleScanState
@@ -106,7 +108,7 @@ class OverlayPopupManager(
         ).toInt()
     }
 
-    @SuppressLint("InflateParams", "ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility")
     private fun createAndShowOverlay(
         scan: BleScanState,
         deviceName: String
@@ -134,9 +136,7 @@ class OverlayPopupManager(
             WindowManager.LayoutParams
                 .FLAG_NOT_FOCUSABLE or
                 WindowManager.LayoutParams
-                    .FLAG_LAYOUT_IN_SCREEN or
-                WindowManager.LayoutParams
-                    .FLAG_LAYOUT_NO_LIMITS,
+                    .FLAG_LAYOUT_IN_SCREEN,
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.BOTTOM
@@ -146,7 +146,6 @@ class OverlayPopupManager(
 
         overlayView = buildSheet(scan, deviceName)
 
-        // ── Swipe-down to dismiss ──
         var startY = 0f
         var dragY = 0f
         overlayView?.setOnTouchListener { v, event ->
@@ -156,6 +155,7 @@ class OverlayPopupManager(
                     dragY = v.translationY
                     true
                 }
+
                 MotionEvent.ACTION_MOVE -> {
                     val delta = event.rawY - startY
                     if (delta > 0) {
@@ -163,15 +163,16 @@ class OverlayPopupManager(
                     }
                     true
                 }
+
                 MotionEvent.ACTION_UP,
                 MotionEvent.ACTION_CANCEL -> {
                     val delta = event.rawY - startY
-                    if (delta > dp(80)) {
+                    if (delta > dp(84)) {
                         dismissPopup()
                     } else {
                         v.animate()
                             .translationY(0f)
-                            .setDuration(200)
+                            .setDuration(180)
                             .setInterpolator(
                                 DecelerateInterpolator()
                             )
@@ -179,20 +180,20 @@ class OverlayPopupManager(
                     }
                     true
                 }
+
                 else -> false
             }
         }
 
-        overlayView?.translationY =
-            dp(400).toFloat()
+        overlayView?.translationY = dp(420).toFloat()
         windowManager?.addView(overlayView, params)
         isShowing = true
 
         overlayView?.animate()
             ?.translationY(0f)
-            ?.setDuration(500)
+            ?.setDuration(460)
             ?.setInterpolator(
-                DecelerateInterpolator(2.5f)
+                DecelerateInterpolator(2.4f)
             )
             ?.start()
 
@@ -207,383 +208,443 @@ class OverlayPopupManager(
         scan: BleScanState,
         deviceName: String
     ): View {
-        val dark = isDarkMode()
+        val palette = overlayPalette()
 
-        val surfaceColor = if (dark)
-            Color.parseColor("#1C1C1E")
-        else
-            Color.parseColor("#F2F2F7")
-
-        val onSurface = if (dark)
-            Color.parseColor("#FFFFFF")
-        else
-            Color.parseColor("#1C1C1E")
-
-        val onSurfaceVariant = if (dark)
-            Color.parseColor("#8E8E93")
-        else
-            Color.parseColor("#6C6C70")
-
-        val primaryColor =
-            Color.parseColor("#0A84FF")
-
-        val dividerColor = if (dark)
-            Color.parseColor("#38383A")
-        else
-            Color.parseColor("#D1D1D6")
-
-        // shadow tint behind case in light mode
-        val caseShadowColor = if (dark)
-            Color.parseColor("#2C2C2E")
-        else
-            Color.parseColor("#E0E0E5")
-
-        // ── Card: rounded top, flat bottom ──
-        val radius = dp(28).toFloat()
-        val cardBg = GradientDrawable().apply {
-            setColor(surfaceColor)
-            cornerRadii = floatArrayOf(
-                radius, radius,
-                radius, radius,
-                0f, 0f,
-                0f, 0f
-            )
+        val root = FrameLayout(context).apply {
+            setPadding(dp(12), 0, dp(12), dp(18))
+            clipToPadding = false
         }
 
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            background = cardBg
-            setPadding(
-                dp(24), dp(24), dp(24), dp(36)
-            )
-            elevation = dp(16).toFloat()
+            background = GradientDrawable(
+                GradientDrawable.Orientation.TOP_BOTTOM,
+                intArrayOf(
+                    palette.surfaceHigh,
+                    palette.surface
+                )
+            ).apply {
+                cornerRadius = dp(34).toFloat()
+            }
+            setPadding(dp(18), dp(12), dp(18), dp(18))
+            elevation = dp(18).toFloat()
             isClickable = true
             isFocusable = true
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                Gravity.BOTTOM
+            )
         }
 
-        // ── Handle bar ──
-        val handleBg = GradientDrawable().apply {
-            setColor(dividerColor)
-            cornerRadius = dp(3).toFloat()
-        }
-        val handle = View(context).apply {
-            background = handleBg
+        card.addView(buildHandle(palette))
+        card.addView(buildHeader(deviceName, palette))
+        card.addView(buildDeviceArt(palette))
+        card.addView(buildBatteryGrid(scan, palette))
+        card.addView(buildDoneButton(palette))
+
+        root.addView(card)
+        return root
+    }
+
+    private fun buildHandle(
+        palette: OverlayPalette
+    ): View {
+        return View(context).apply {
+            background = GradientDrawable().apply {
+                setColor(palette.outline)
+                cornerRadius = dp(999).toFloat()
+            }
             layoutParams = LinearLayout.LayoutParams(
-                dp(40), dp(5)
+                dp(44),
+                dp(5)
             ).apply {
                 gravity = Gravity.CENTER_HORIZONTAL
-                bottomMargin = dp(20)
+                bottomMargin = dp(14)
             }
         }
-        card.addView(handle)
+    }
 
-        // ── App name ──
-        val appLabel = TextView(context).apply {
-            text = "LightPods"
-            setTextSize(
-                TypedValue.COMPLEX_UNIT_SP, 12f
+    private fun buildHeader(
+        deviceName: String,
+        palette: OverlayPalette
+    ): View {
+        val row = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                bottomMargin = dp(14)
+            }
+        }
+
+        val icon = ImageView(context).apply {
+            setImageResource(R.mipmap.ic_launcher_round)
+            layoutParams = LinearLayout.LayoutParams(
+                dp(46),
+                dp(46)
+            ).apply {
+                rightMargin = dp(12)
+            }
+        }
+        row.addView(icon)
+
+        val titleColumn = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
             )
-            setTextColor(onSurfaceVariant)
+        }
+
+        titleColumn.addView(
+            TextView(context).apply {
+                text = deviceName.ifBlank { "AirPods Pro" }
+                setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    20f
+                )
+                setTextColor(palette.onSurface)
+                typeface = Typeface.create(
+                    "sans-serif",
+                    Typeface.BOLD
+                )
+                maxLines = 1
+            }
+        )
+        titleColumn.addView(
+            TextView(context).apply {
+                text = "Connected with LightPods"
+                setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    13f
+                )
+                setTextColor(palette.onSurfaceVariant)
+                maxLines = 1
+            }
+        )
+        row.addView(titleColumn)
+
+        val close = TextView(context).apply {
+            text = "Done"
+            setTextSize(
+                TypedValue.COMPLEX_UNIT_SP,
+                13f
+            )
+            setTextColor(palette.primary)
             typeface = Typeface.create(
                 "sans-serif-medium",
                 Typeface.NORMAL
             )
             gravity = Gravity.CENTER
-            letterSpacing = 0.08f
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dp(4) }
+            background = pillDrawable(
+                palette.primaryContainer,
+                dp(18).toFloat()
+            )
+            setPadding(dp(12), dp(8), dp(12), dp(8))
+            setOnClickListener { dismissPopup() }
         }
-        card.addView(appLabel)
+        row.addView(close)
 
-        // ── Device name ──
-        val nameLabel = TextView(context).apply {
-            text = deviceName
-            setTextSize(
-                TypedValue.COMPLEX_UNIT_SP, 22f
-            )
-            setTextColor(onSurface)
-            typeface = Typeface.create(
-                "sans-serif", Typeface.BOLD
-            )
+        return row
+    }
+
+    private fun buildDeviceArt(
+        palette: OverlayPalette
+    ): View {
+        val panel = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
+            background = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                intArrayOf(
+                    palette.primaryContainer,
+                    palette.tertiaryContainer
+                )
+            ).apply {
+                cornerRadius = dp(28).toFloat()
+            }
+            setPadding(dp(14), dp(12), dp(14), dp(12))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dp(4) }
+                dp(132)
+            ).apply {
+                bottomMargin = dp(12)
+            }
         }
-        card.addView(nameLabel)
 
-        // ── Subtitle ──
-        val subtitle = TextView(context).apply {
-            text = "AirPods Pro · Connected"
-            setTextSize(
-                TypedValue.COMPLEX_UNIT_SP, 13f
+        panel.addView(
+            deviceImage(
+                res = R.drawable.pod_left,
+                width = 78,
+                height = 96
             )
-            setTextColor(onSurfaceVariant)
-            gravity = Gravity.CENTER
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dp(24) }
-        }
-        card.addView(subtitle)
+        )
+        panel.addView(
+            deviceImage(
+                res = R.drawable.case_closed,
+                width = 116,
+                height = 104
+            )
+        )
+        panel.addView(
+            deviceImage(
+                res = R.drawable.pod_right,
+                width = 78,
+                height = 96
+            )
+        )
+        return panel
+    }
 
-        // ── Device row ──
-        val deviceRow = LinearLayout(context).apply {
+    private fun deviceImage(
+        res: Int,
+        width: Int,
+        height: Int
+    ): ImageView {
+        return ImageView(context).apply {
+            setImageResource(res)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            layoutParams = LinearLayout.LayoutParams(
+                dp(width),
+                dp(height)
+            )
+        }
+    }
+
+    private fun buildBatteryGrid(
+        scan: BleScanState,
+        palette: OverlayPalette
+    ): View {
+        val row = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply { bottomMargin = dp(20) }
-        }
-
-        deviceRow.addView(
-            buildPodColumn(
-                "Left",
-                scan.battery.leftPercent,
-                scan.isLeftMicrophone,
-                R.drawable.pod_left,
-                onSurface,
-                onSurfaceVariant
-            )
-        )
-
-        deviceRow.addView(
-            buildPodColumn(
-                "Right",
-                scan.battery.rightPercent,
-                !scan.isLeftMicrophone,
-                R.drawable.pod_right,
-                onSurface,
-                onSurfaceVariant
-            )
-        )
-
-        // Vertical separator
-        val sep = View(context).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                dp(1), dp(70)
             ).apply {
-                leftMargin = dp(8)
-                rightMargin = dp(8)
-                gravity = Gravity.CENTER_VERTICAL
+                bottomMargin = dp(12)
             }
-            setBackgroundColor(dividerColor)
         }
-        deviceRow.addView(sep)
 
-        deviceRow.addView(
-            buildCaseColumn(
-                scan.battery.casePercent,
-                onSurface,
-                onSurfaceVariant,
-                caseShadowColor
+        row.addView(
+            buildBatteryCard(
+                label = "Left",
+                percent = scan.battery.leftPercent,
+                note = if (scan.isLeftMicrophone) {
+                    "Mic"
+                } else null,
+                palette = palette
+            )
+        )
+        row.addView(
+            buildBatteryCard(
+                label = "Right",
+                percent = scan.battery.rightPercent,
+                note = if (!scan.isLeftMicrophone) {
+                    "Mic"
+                } else null,
+                palette = palette
+            )
+        )
+        row.addView(
+            buildBatteryCard(
+                label = "Case",
+                percent = scan.battery.casePercent,
+                note = null,
+                palette = palette
             )
         )
 
-        card.addView(deviceRow)
+        return row
+    }
 
-        // ── Done button ──
-        val btnBg = GradientDrawable().apply {
-            setColor(primaryColor)
-            cornerRadius = dp(14).toFloat()
+    private fun buildBatteryCard(
+        label: String,
+        percent: Int,
+        note: String?,
+        palette: OverlayPalette
+    ): View {
+        val percentValid = percent in 0..100
+        val color = batteryColor(percent)
+
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            background = pillDrawable(
+                palette.surfaceContainer,
+                dp(22).toFloat()
+            )
+            setPadding(dp(12), dp(12), dp(12), dp(12))
+            layoutParams = LinearLayout.LayoutParams(
+                0,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                1f
+            ).apply {
+                leftMargin = dp(4)
+                rightMargin = dp(4)
+            }
         }
 
-        val doneBtn = TextView(context).apply {
-            text = "Done"
+        val title = TextView(context).apply {
+            text = label
             setTextSize(
-                TypedValue.COMPLEX_UNIT_SP, 16f
+                TypedValue.COMPLEX_UNIT_SP,
+                12f
             )
-            setTextColor(Color.WHITE)
+            setTextColor(palette.onSurfaceVariant)
+            maxLines = 1
+        }
+        card.addView(title)
+
+        val value = TextView(context).apply {
+            text = if (percentValid) "$percent%" else "NA"
+            setTextSize(
+                TypedValue.COMPLEX_UNIT_SP,
+                18f
+            )
+            setTextColor(palette.onSurface)
+            typeface = Typeface.create(
+                "sans-serif",
+                Typeface.BOLD
+            )
+            maxLines = 1
+        }
+        card.addView(value)
+
+        if (note != null) {
+            val noteView = TextView(context).apply {
+                text = note
+                setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    11f
+                )
+                setTextColor(palette.primary)
+                typeface = Typeface.create(
+                    "sans-serif-medium",
+                    Typeface.NORMAL
+                )
+                maxLines = 1
+            }
+            card.addView(noteView)
+        } else {
+            card.addView(
+                SpaceView(context, dp(14))
+            )
+        }
+
+        val progress = ProgressBar(
+            context,
+            null,
+            android.R.attr.progressBarStyleHorizontal
+        ).apply {
+            max = 100
+            progress = if (percentValid) percent else 0
+            progressTintList = ColorStateList.valueOf(color)
+            progressBackgroundTintList =
+                ColorStateList.valueOf(palette.outlineVariant)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                dp(6)
+            ).apply {
+                topMargin = dp(8)
+            }
+        }
+        card.addView(progress)
+
+        return card
+    }
+
+    private fun buildDoneButton(
+        palette: OverlayPalette
+    ): View {
+        return TextView(context).apply {
+            text = "Continue"
+            setTextSize(
+                TypedValue.COMPLEX_UNIT_SP,
+                16f
+            )
+            setTextColor(palette.onPrimary)
             typeface = Typeface.create(
                 "sans-serif-medium",
                 Typeface.NORMAL
             )
             gravity = Gravity.CENTER
-            background = btnBg
-            setPadding(0, dp(14), 0, dp(14))
+            background = pillDrawable(
+                palette.primary,
+                dp(18).toFloat()
+            )
+            setPadding(0, dp(15), 0, dp(15))
             layoutParams = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
             setOnClickListener { dismissPopup() }
         }
-        card.addView(doneBtn)
-
-        return card
     }
 
-    private fun buildPodColumn(
-        label: String,
-        percent: Int,
-        hasMic: Boolean,
-        iconRes: Int,
-        textColor: Int,
-        subtextColor: Int
-    ): LinearLayout {
-        return LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
-            )
-
-            val icon = ImageView(context).apply {
-                setImageResource(iconRes)
-                layoutParams = LinearLayout.LayoutParams(
-                    dp(72), dp(72)
-                ).apply { bottomMargin = dp(6) }
-                scaleType =
-                    ImageView.ScaleType.FIT_CENTER
-            }
-            addView(icon)
-
-            if (hasMic) {
-                val mic = TextView(context).apply {
-                    text = "🎤"
-                    setTextSize(
-                        TypedValue.COMPLEX_UNIT_SP, 10f
-                    )
-                    gravity = Gravity.CENTER
-                }
-                addView(mic)
-            }
-
-            val bText = TextView(context).apply {
-                text = if (percent in 0..100) {
-                    "$percent%"
-                } else "—"
-                setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP, 16f
-                )
-                setTextColor(batteryColor(percent))
-                typeface = Typeface.create(
-                    "sans-serif", Typeface.BOLD
-                )
-                gravity = Gravity.CENTER
-            }
-            addView(bText)
-
-            val lbl = TextView(context).apply {
-                text = label
-                setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP, 12f
-                )
-                setTextColor(subtextColor)
-                gravity = Gravity.CENTER
-            }
-            addView(lbl)
+    private fun pillDrawable(
+        color: Int,
+        radius: Float
+    ): GradientDrawable {
+        return GradientDrawable().apply {
+            setColor(color)
+            cornerRadius = radius
         }
     }
 
-    // ╔══════════════════════════════════════════╗
-    // ║  CASE SIZE: Change dp(64) below to      ║
-    // ║  adjust the case image size in popup.    ║
-    // ║  e.g. dp(72) for bigger, dp(48) smaller ║
-    // ╚══════════════════════════════════════════╝
-    private fun buildCaseColumn(
-        percent: Int,
-        textColor: Int,
-        subtextColor: Int,
-        shadowColor: Int
-    ): LinearLayout {
-        return LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER_HORIZONTAL
-            layoutParams = LinearLayout.LayoutParams(
-                0,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                1f
+    private fun overlayPalette(): OverlayPalette {
+        val dark = isDarkMode()
+        return if (dark) {
+            OverlayPalette(
+                primary = Color.parseColor("#52DBC8"),
+                onPrimary = Color.parseColor("#003733"),
+                primaryContainer = Color.parseColor("#005048"),
+                tertiaryContainer = Color.parseColor("#2D4960"),
+                surface = Color.parseColor("#101513"),
+                surfaceHigh = Color.parseColor("#262B28"),
+                surfaceContainer = Color.parseColor("#1C211E"),
+                onSurface = Color.parseColor("#E0E4DE"),
+                onSurfaceVariant = Color.parseColor("#BEC9C4"),
+                outline = Color.parseColor("#5C6662"),
+                outlineVariant = Color.parseColor("#3F4946")
             )
-
-            // Case with shadow circle behind it
-            val caseWrapper = FrameLayout(context).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    dp(80), dp(80)
-                ).apply {
-                    gravity = Gravity.CENTER_HORIZONTAL
-                    bottomMargin = dp(6)
-                }
-            }
-
-            // Shadow circle behind case
-            val shadowBg = GradientDrawable().apply {
-                shape = GradientDrawable.OVAL
-                setColor(shadowColor)
-            }
-            val shadow = View(context).apply {
-                background = shadowBg
-                layoutParams = FrameLayout.LayoutParams(
-                    dp(68), dp(68)
-                ).apply {
-                    gravity = Gravity.CENTER
-                }
-            }
-            caseWrapper.addView(shadow)
-
-            val icon = ImageView(context).apply {
-                setImageResource(R.drawable.case_closed)
-                layoutParams = FrameLayout.LayoutParams(
-                    dp(80), dp(80)
-                ).apply {
-                    gravity = Gravity.CENTER
-                }
-                scaleType =
-                    ImageView.ScaleType.FIT_CENTER
-            }
-            caseWrapper.addView(icon)
-
-            addView(caseWrapper)
-
-            val bText = TextView(context).apply {
-                text = if (percent in 0..100) {
-                    "$percent%"
-                } else "—"
-                setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP, 16f
-                )
-                setTextColor(batteryColor(percent))
-                typeface = Typeface.create(
-                    "sans-serif", Typeface.BOLD
-                )
-                gravity = Gravity.CENTER
-            }
-            addView(bText)
-
-            val lbl = TextView(context).apply {
-                text = "Case"
-                setTextSize(
-                    TypedValue.COMPLEX_UNIT_SP, 12f
-                )
-                setTextColor(subtextColor)
-                gravity = Gravity.CENTER
-            }
-            addView(lbl)
+        } else {
+            OverlayPalette(
+                primary = Color.parseColor("#006A60"),
+                onPrimary = Color.WHITE,
+                primaryContainer = Color.parseColor("#C7FFF3"),
+                tertiaryContainer = Color.parseColor("#D8EBFF"),
+                surface = Color.parseColor("#F7FAF2"),
+                surfaceHigh = Color.WHITE,
+                surfaceContainer = Color.parseColor("#EEF2EA"),
+                onSurface = Color.parseColor("#181D1A"),
+                onSurfaceVariant = Color.parseColor("#3F4946"),
+                outline = Color.parseColor("#BEC9C4"),
+                outlineVariant = Color.parseColor("#D7E0DC")
+            )
         }
     }
 
     private fun batteryColor(percent: Int): Int {
         return when {
             percent !in 0..100 ->
-                Color.parseColor("#48484A")
+                Color.parseColor("#89938F")
             percent > 50 ->
-                Color.parseColor("#34C759")
+                Color.parseColor("#21A65B")
             percent > 20 ->
-                Color.parseColor("#FFCC00")
+                Color.parseColor("#B88700")
             else ->
-                Color.parseColor("#FF3B30")
+                Color.parseColor("#BA1A1A")
         }
     }
 
     private fun animateOut() {
         overlayView?.animate()
-            ?.translationY(dp(400).toFloat())
-            ?.setDuration(350)
+            ?.translationY(dp(420).toFloat())
+            ?.setDuration(300)
             ?.setInterpolator(DecelerateInterpolator())
             ?.withEndAction { removeOverlay() }
             ?.start()
@@ -595,9 +656,36 @@ class OverlayPopupManager(
             overlayView?.let {
                 windowManager?.removeView(it)
             }
-        } catch (_: Exception) { }
+        } catch (_: Exception) {
+        }
         overlayView = null
         isShowing = false
+    }
+
+    private data class OverlayPalette(
+        val primary: Int,
+        val onPrimary: Int,
+        val primaryContainer: Int,
+        val tertiaryContainer: Int,
+        val surface: Int,
+        val surfaceHigh: Int,
+        val surfaceContainer: Int,
+        val onSurface: Int,
+        val onSurfaceVariant: Int,
+        val outline: Int,
+        val outlineVariant: Int
+    )
+
+    private class SpaceView(
+        context: Context,
+        height: Int
+    ) : View(context) {
+        init {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                height
+            )
+        }
     }
 
     companion object {

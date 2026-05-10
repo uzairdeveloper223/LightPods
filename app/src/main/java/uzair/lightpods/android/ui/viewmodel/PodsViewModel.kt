@@ -14,6 +14,7 @@ import uzair.lightpods.android.bluetooth.PodsUiState
 import uzair.lightpods.android.settings.AppSettings
 import uzair.lightpods.android.settings.ThemeMode
 import uzair.lightpods.android.updater.AppUpdater
+import uzair.lightpods.android.updater.DownloadProgress
 import uzair.lightpods.android.updater.UpdateInfo
 
 class PodsViewModel(application: Application) :
@@ -52,6 +53,10 @@ class PodsViewModel(application: Application) :
     val showUpdateDialog: StateFlow<Boolean> =
         _showUpdateDialog.asStateFlow()
 
+    val downloadProgress:
+        StateFlow<DownloadProgress> =
+        appUpdater.downloadProgress
+
     fun initializeBluetooth() {
         podsManager.initialize()
     }
@@ -72,11 +77,24 @@ class PodsViewModel(application: Application) :
         appSettings.setThemeMode(mode)
     }
 
-    fun checkForUpdates() {
+    fun checkForUpdates(showResult: Boolean = false) {
         viewModelScope.launch {
             val info = appUpdater.checkForUpdate()
-            _updateInfo.value = info
-            if (info?.isUpdateAvailable == true) {
+            _updateInfo.value = info ?: if (showResult) {
+                UpdateInfo(
+                    latestVersion = "1.0.0",
+                    latestVersionCode = 1,
+                    downloadUrl = "",
+                    releaseNotes = "Could not reach the update server. Check your connection and try again.",
+                    isUpdateAvailable = false
+                )
+            } else {
+                null
+            }
+
+            if (info?.isUpdateAvailable == true ||
+                showResult
+            ) {
                 _showUpdateDialog.value = true
             }
         }
@@ -90,11 +108,12 @@ class PodsViewModel(application: Application) :
                 info.latestVersion
             )
         }
-        _showUpdateDialog.value = false
+        // Keep dialog open to show progress
     }
 
     fun dismissUpdateDialog() {
         _showUpdateDialog.value = false
+        appUpdater.resetProgress()
     }
 
     override fun onCleared() {
