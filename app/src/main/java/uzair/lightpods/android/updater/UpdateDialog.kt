@@ -110,8 +110,6 @@ fun UpdateDialog(
                             .onSurfaceVariant
                     )
                 }
-
-                // ── Progress bar ──
                 AnimatedVisibility(
                     visible = isDownloading,
                     enter = fadeIn(),
