@@ -155,7 +155,6 @@ class BluetoothPodsManager private constructor(
                 mergeBleState(scan)
             }
         }
-        // Collect nearby devices map → convert to sorted list
         scope.launch {
             bleScanner.nearbyDevices.collect { devicesMap ->
                 val primaryAddress = _state.value.deviceInfo.macAddress
