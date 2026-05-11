@@ -1,5 +1,6 @@
 package uzair.lightpods.android.ui.screens
 
+import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.Intent
@@ -652,12 +653,25 @@ private fun PermissionsSection(
                 if (Build.VERSION.SDK_INT >=
                     Build.VERSION_CODES.M
                 ) {
-                    context.startActivity(
-                        Intent(
+                    if (!hasBatteryExempt) {
+                        @SuppressLint("BatteryLife")
+                        val intent = Intent(
                             AndroidSettings
-                                .ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                                .ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                            Uri.parse(
+                                "package:" +
+                                    context.packageName
+                            )
                         )
-                    )
+                        context.startActivity(intent)
+                    } else {
+                        context.startActivity(
+                            Intent(
+                                AndroidSettings
+                                    .ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                            )
+                        )
+                    }
                 }
             }
         )
