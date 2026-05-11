@@ -6,7 +6,10 @@ data class PodBattery(
     val casePercent: Int = -1,
     val isLeftCharging: Boolean = false,
     val isRightCharging: Boolean = false,
-    val isCaseCharging: Boolean = false
+    val isCaseCharging: Boolean = false,
+    val isLeftDead: Boolean = false,
+    val isRightDead: Boolean = false,
+    val isCaseDead: Boolean = false
 ) {
     val isLeftAvailable: Boolean
         get() = leftPercent in 0..100

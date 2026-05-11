@@ -470,17 +470,20 @@ private fun BatteryOverviewCard(battery: PodBattery) {
             BatteryMeter(
                 label = "Left pod",
                 percent = battery.leftPercent,
-                charging = battery.isLeftCharging
+                charging = battery.isLeftCharging,
+                isDead = battery.isLeftDead
             )
             BatteryMeter(
                 label = "Right pod",
                 percent = battery.rightPercent,
-                charging = battery.isRightCharging
+                charging = battery.isRightCharging,
+                isDead = battery.isRightDead
             )
             BatteryMeter(
                 label = "Case",
                 percent = battery.casePercent,
-                charging = battery.isCaseCharging
+                charging = battery.isCaseCharging,
+                isDead = battery.isCaseDead
             )
         }
     }
@@ -490,10 +493,11 @@ private fun BatteryOverviewCard(battery: PodBattery) {
 private fun BatteryMeter(
     label: String,
     percent: Int,
-    charging: Boolean
+    charging: Boolean,
+    isDead: Boolean = false
 ) {
     val isAvailable = percent in 0..100
-    val color = batteryColor(percent)
+    val color = if (isDead) BatteryLow else batteryColor(percent)
 
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -521,7 +525,13 @@ private fun BatteryMeter(
                         .typography.bodyMedium
                         .copy(fontWeight = FontWeight.Medium)
                 )
-                if (charging) {
+                if (isDead) {
+                    Text(
+                        text = "Dead",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = BatteryLow
+                    )
+                } else if (charging) {
                     Text(
                         text = "Charging",
                         style = MaterialTheme.typography.labelSmall,
@@ -530,20 +540,28 @@ private fun BatteryMeter(
                 }
             }
             Text(
-                text = if (isAvailable) "$percent%" else "Unknown",
+                text = when {
+                    isDead -> "Dead"
+                    isAvailable -> "$percent%"
+                    else -> "Unknown"
+                },
                 style = MaterialTheme
                     .typography.labelLarge
                     .copy(fontWeight = FontWeight.Bold),
-                color = if (isAvailable) {
-                    MaterialTheme.colorScheme.onSurface
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+                color = when {
+                    isDead -> BatteryLow
+                    isAvailable ->
+                        MaterialTheme.colorScheme.onSurface
+                    else ->
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 }
             )
         }
         LinearProgressIndicator(
             progress = {
-                if (isAvailable) percent / 100f else 0f
+                if (isDead) 0f
+                else if (isAvailable) percent / 100f
+                else 0f
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -571,23 +589,21 @@ private fun LiveStateCard(state: PodsUiState) {
         ) {
             StatusRow(
                 label = "Left ear",
-                value = if (state.isLeftInEar) {
-                    "In ear"
-                } else if (state.isLeftInCase) {
-                    "In case"
-                } else {
-                    "Out"
+                value = when {
+                    state.battery.isLeftDead -> "Dead"
+                    state.isLeftInEar -> "In ear"
+                    state.isLeftInCase -> "In case"
+                    else -> "Out"
                 },
                 active = state.isLeftInEar
             )
             StatusRow(
                 label = "Right ear",
-                value = if (state.isRightInEar) {
-                    "In ear"
-                } else if (state.isRightInCase) {
-                    "In case"
-                } else {
-                    "Out"
+                value = when {
+                    state.battery.isRightDead -> "Dead"
+                    state.isRightInEar -> "In ear"
+                    state.isRightInCase -> "In case"
+                    else -> "Out"
                 },
                 active = state.isRightInEar
             )

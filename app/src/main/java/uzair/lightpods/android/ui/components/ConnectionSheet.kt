@@ -313,6 +313,7 @@ private fun BatterySummaryGrid(
             label = "Left pod",
             percent = battery.leftPercent,
             charging = battery.isLeftCharging,
+            isDead = battery.isLeftDead,
             note = if (micLocation ==
                 MicrophoneLocation.LEFT
             ) "Mic" else null
@@ -321,6 +322,7 @@ private fun BatterySummaryGrid(
             label = "Right pod",
             percent = battery.rightPercent,
             charging = battery.isRightCharging,
+            isDead = battery.isRightDead,
             note = if (micLocation ==
                 MicrophoneLocation.RIGHT
             ) "Mic" else null
@@ -329,6 +331,7 @@ private fun BatterySummaryGrid(
             label = "Case",
             percent = battery.casePercent,
             charging = battery.isCaseCharging,
+            isDead = battery.isCaseDead,
             note = null
         )
     }
@@ -339,10 +342,11 @@ private fun PopupBatteryRow(
     label: String,
     percent: Int,
     charging: Boolean,
+    isDead: Boolean = false,
     note: String?
 ) {
     val isAvailable = percent in 0..100
-    val color = batteryColor(percent)
+    val color = if (isDead) BatteryLow else batteryColor(percent)
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -381,7 +385,14 @@ private fun PopupBatteryRow(
                                     FontWeight.SemiBold
                             )
                     )
-                    if (charging) {
+                    if (isDead) {
+                        Text(
+                            text = "Dead",
+                            style = MaterialTheme
+                                .typography.labelSmall,
+                            color = BatteryLow
+                        )
+                    } else if (charging) {
                         Text(
                             text = "Charging",
                             style = MaterialTheme
@@ -401,19 +412,23 @@ private fun PopupBatteryRow(
                     }
                 }
                 Text(
-                    text = if (isAvailable) {
-                        "$percent%"
-                    } else {
-                        "Unknown"
+                    text = when {
+                        isDead -> "Dead"
+                        isAvailable -> "$percent%"
+                        else -> "Unknown"
                     },
                     style = MaterialTheme
                         .typography.labelLarge
-                        .copy(fontWeight = FontWeight.Bold)
+                        .copy(fontWeight = FontWeight.Bold),
+                    color = if (isDead) BatteryLow
+                        else Color.Unspecified
                 )
             }
             LinearProgressIndicator(
                 progress = {
-                    if (isAvailable) percent / 100f else 0f
+                    if (isDead) 0f
+                    else if (isAvailable) percent / 100f
+                    else 0f
                 },
                 modifier = Modifier
                     .fillMaxWidth()

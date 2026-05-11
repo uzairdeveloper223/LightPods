@@ -71,18 +71,27 @@ class PodsMonitorService : Service() {
                         val b = state.battery
                         val parts =
                             mutableListOf<String>()
-                        if (b.isLeftAvailable)
+                        if (b.isLeftDead) {
+                            parts.add("L: Dead")
+                        } else if (b.isLeftAvailable) {
                             parts.add(
                                 "L: ${b.leftPercent}%"
                             )
-                        if (b.isRightAvailable)
+                        }
+                        if (b.isRightDead) {
+                            parts.add("R: Dead")
+                        } else if (b.isRightAvailable) {
                             parts.add(
                                 "R: ${b.rightPercent}%"
                             )
-                        if (b.isCaseAvailable)
+                        }
+                        if (b.isCaseDead) {
+                            parts.add("Case: Dead")
+                        } else if (b.isCaseAvailable) {
                             parts.add(
                                 "Case: ${b.casePercent}%"
                             )
+                        }
 
                         val batteryText =
                             if (parts.isNotEmpty())

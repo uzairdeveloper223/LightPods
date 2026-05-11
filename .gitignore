@@ -20,3 +20,6 @@ release-manager.sh
 # Release signing keystore (never commit)
 *.jks
 *.keystore
+
+## Example
+/examples

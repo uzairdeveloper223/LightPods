@@ -11,9 +11,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,6 +37,44 @@ class BluetoothPodsManager private constructor(
     private var headsetProfile: BluetoothHeadset? = null
     private val bleScanner = BlePodsScanner(context)
     private var isInitialized = false
+
+    // ── Dead-pod battery cache (CaPod-inspired) ──
+    // Persists across headset disconnects so that when
+    // a pod dies and BLE goes silent, we can restore
+    // the last known state instead of showing Unknown.
+    // Only fully reset when the BT adapter turns off.
+    private var lastKnownLeftPercent: Int = -1
+    private var lastKnownRightPercent: Int = -1
+    private var lastKnownCasePercent: Int = -1
+    private var lastKnownLeftCharging: Boolean = false
+    private var lastKnownRightCharging: Boolean = false
+    private var lastKnownCaseCharging: Boolean = false
+
+    // Timestamp of the last successful BLE scan update
+    private var lastBleUpdateMs: Long = 0L
+    // Staleness checker coroutine handle
+    private var stalenessJob: Job? = null
+
+    companion object {
+        private const val TAG = "PodsManager"
+        // If no BLE data for this long while headset
+        // is connected, we consider data stale and
+        // restore cached battery with dead inference.
+        private const val BLE_STALE_TIMEOUT_MS = 15_000L
+        // How often the staleness checker runs
+        private const val STALE_CHECK_INTERVAL_MS = 5_000L
+
+        @Volatile
+        private var INSTANCE: BluetoothPodsManager? = null
+
+        fun getInstance(context: Context): BluetoothPodsManager {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: BluetoothPodsManager(
+                    context.applicationContext
+                ).also { INSTANCE = it }
+            }
+        }
+    }
 
     private val profileListener =
         object : BluetoothProfile.ServiceListener {
@@ -155,6 +196,125 @@ class BluetoothPodsManager private constructor(
                 mergeBleState(scan)
             }
         }
+        startStalenessChecker()
+    }
+
+    /**
+     * Periodic checker (CaPod stale-eviction pattern).
+     * When headset is connected but BLE data has not
+     * arrived for [BLE_STALE_TIMEOUT_MS], restore
+     * cached battery values and infer dead pods.
+     */
+    private fun startStalenessChecker() {
+        stalenessJob?.cancel()
+        stalenessJob = scope.launch {
+            while (true) {
+                delay(STALE_CHECK_INTERVAL_MS)
+                val now = System.currentTimeMillis()
+                val currentState = _state.value
+
+                // Only act when headset says connected
+                // but BLE has gone silent.
+                if (currentState.connectionState !=
+                    ConnectionState.CONNECTED
+                ) continue
+
+                val bleAge = now - lastBleUpdateMs
+                if (lastBleUpdateMs == 0L ||
+                    bleAge < BLE_STALE_TIMEOUT_MS
+                ) continue
+
+                // BLE is stale. Restore cached battery.
+                val hasCachedLeft =
+                    lastKnownLeftPercent in 0..100
+                val hasCachedRight =
+                    lastKnownRightPercent in 0..100
+                val hasCachedCase =
+                    lastKnownCasePercent in 0..100
+                val hasAnyCached =
+                    hasCachedLeft || hasCachedRight ||
+                        hasCachedCase
+
+                if (!hasAnyCached) {
+                    // First-time: never received valid
+                    // BLE data. Headset is connected
+                    // but BLE is silent → one or more
+                    // pods may be dead.
+                    Log.d(TAG,
+                        "BLE stale, no cached data. " +
+                            "Pods may be dead.")
+                    _state.update { s ->
+                        s.copy(
+                            battery = PodBattery(
+                                leftPercent = -1,
+                                rightPercent = -1,
+                                casePercent = -1,
+                                isLeftDead = true,
+                                isRightDead = true,
+                                isCaseDead = false
+                            )
+                        )
+                    }
+                    continue
+                }
+
+                // We have cached data. Restore it.
+                // If a pod had valid battery cached,
+                // it was alive before but BLE went
+                // silent → might still be alive
+                // (broadcast just stopped). Show the
+                // cached value. If we only had one pod
+                // in cache, the other was never seen
+                // → mark that one dead.
+                val isLeftDead = !hasCachedLeft &&
+                    hasCachedRight
+                val isRightDead = !hasCachedRight &&
+                    hasCachedLeft
+
+                Log.d(TAG,
+                    "BLE stale ${bleAge}ms. " +
+                        "Restoring cache: " +
+                        "L=$lastKnownLeftPercent " +
+                        "R=$lastKnownRightPercent " +
+                        "C=$lastKnownCasePercent")
+
+                _state.update { s ->
+                    s.copy(
+                        battery = PodBattery(
+                            leftPercent =
+                                if (hasCachedLeft)
+                                    lastKnownLeftPercent
+                                else if (isLeftDead) 0
+                                else -1,
+                            rightPercent =
+                                if (hasCachedRight)
+                                    lastKnownRightPercent
+                                else if (isRightDead) 0
+                                else -1,
+                            casePercent =
+                                if (hasCachedCase)
+                                    lastKnownCasePercent
+                                else -1,
+                            isLeftCharging =
+                                if (hasCachedLeft)
+                                    lastKnownLeftCharging
+                                else false,
+                            isRightCharging =
+                                if (hasCachedRight)
+                                    lastKnownRightCharging
+                                else false,
+                            isCaseCharging =
+                                if (hasCachedCase)
+                                    lastKnownCaseCharging
+                                else false,
+                            isLeftDead = isLeftDead,
+                            isRightDead = isRightDead,
+                            isCaseDead = false
+                        )
+                    )
+                }
+            }
+        }
     }
 
     fun restartBleScan() {
@@ -163,6 +323,9 @@ class BluetoothPodsManager private constructor(
     }
 
     private fun mergeBleState(scan: BleScanState) {
+        // Record that we got fresh BLE data
+        lastBleUpdateMs = System.currentTimeMillis()
+
         val mic = when {
             scan.isLeftMicrophone ->
                 MicrophoneLocation.LEFT
@@ -172,6 +335,66 @@ class BluetoothPodsManager private constructor(
         val detectedModel = scan.spoofedModel
         val deviceCodeHex = String.format(
             "0x%04X", scan.deviceModel
+        )
+
+        // ── Smart battery merge ──
+        val live = scan.battery
+
+        // Dead detection: a pod is dead if…
+        // (a) it was alive before and now 0x0F, OR
+        // (b) we’ve never seen it but the OTHER pod
+        //     IS reporting → first-time dead.
+        val isLeftDead = !live.isLeftAvailable && (
+            lastKnownLeftPercent >= 0 ||
+                live.isRightAvailable
+            )
+        val isRightDead = !live.isRightAvailable && (
+            lastKnownRightPercent >= 0 ||
+                live.isLeftAvailable
+            )
+        val isCaseDead = !live.isCaseAvailable &&
+            lastKnownCasePercent >= 0
+
+        // Update cache with fresh valid readings
+        if (live.isLeftAvailable) {
+            lastKnownLeftPercent = live.leftPercent
+            lastKnownLeftCharging = live.isLeftCharging
+        }
+        if (live.isRightAvailable) {
+            lastKnownRightPercent = live.rightPercent
+            lastKnownRightCharging = live.isRightCharging
+        }
+        if (live.isCaseAvailable) {
+            lastKnownCasePercent = live.casePercent
+            lastKnownCaseCharging = live.isCaseCharging
+        }
+
+        val mergedBattery = PodBattery(
+            leftPercent = when {
+                live.isLeftAvailable -> live.leftPercent
+                isLeftDead -> 0
+                else -> -1
+            },
+            rightPercent = when {
+                live.isRightAvailable ->
+                    live.rightPercent
+                isRightDead -> 0
+                else -> -1
+            },
+            casePercent = when {
+                live.isCaseAvailable -> live.casePercent
+                isCaseDead -> 0
+                else -> -1
+            },
+            isLeftCharging = if (live.isLeftAvailable)
+                live.isLeftCharging else false,
+            isRightCharging = if (live.isRightAvailable)
+                live.isRightCharging else false,
+            isCaseCharging = if (live.isCaseAvailable)
+                live.isCaseCharging else false,
+            isLeftDead = isLeftDead,
+            isRightDead = isRightDead,
+            isCaseDead = isCaseDead
         )
 
         _state.update { current ->
@@ -185,7 +408,7 @@ class BluetoothPodsManager private constructor(
             current.copy(
                 connectionState =
                     ConnectionState.CONNECTED,
-                battery = scan.battery,
+                battery = mergedBattery,
                 isLeftInEar = scan.isLeftInEar,
                 isRightInEar = scan.isRightInEar,
                 isCaseLidOpen = scan.isCaseLidOpen,
@@ -196,8 +419,9 @@ class BluetoothPodsManager private constructor(
                 rssi = scan.rssi,
                 showConnectionSheet =
                     if (shouldShowPopup &&
-                        (scan.battery.isLeftAvailable ||
-                            scan.battery.isRightAvailable)
+                        (mergedBattery.isLeftAvailable ||
+                            mergedBattery.isRightAvailable ||
+                            isLeftDead || isRightDead)
                     ) true
                     else current.showConnectionSheet,
                 deviceInfo = PodDeviceInfo(
@@ -221,12 +445,32 @@ class BluetoothPodsManager private constructor(
         }
     }
 
+    private fun resetBatteryCache() {
+        lastKnownLeftPercent = -1
+        lastKnownRightPercent = -1
+        lastKnownCasePercent = -1
+        lastKnownLeftCharging = false
+        lastKnownRightCharging = false
+        lastKnownCaseCharging = false
+        lastBleUpdateMs = 0L
+    }
+
     @SuppressLint("MissingPermission")
     private fun handleDeviceConnected(
         device: BluetoothDevice
     ) {
         val deviceName = device.name ?: "LightPods"
         val macAddress = device.address ?: ""
+
+        // Restore cached battery on reconnect so
+        // the user doesn't see all-Unknown after a
+        // brief disconnect/reconnect cycle.
+        val hasCachedLeft =
+            lastKnownLeftPercent in 0..100
+        val hasCachedRight =
+            lastKnownRightPercent in 0..100
+        val hasCachedCase =
+            lastKnownCasePercent in 0..100
 
         _state.update { current ->
             val wasDisconnected =
@@ -236,9 +480,53 @@ class BluetoothPodsManager private constructor(
                 wasDisconnected &&
                     !current.popupDismissedWhileDisconnected
 
+            // If current battery is all unknown but
+            // we have cached data, restore it.
+            val needsRestore =
+                !current.battery.isLeftAvailable &&
+                    !current.battery.isRightAvailable &&
+                    (hasCachedLeft || hasCachedRight)
+
+            val restoredBattery = if (needsRestore) {
+                PodBattery(
+                    leftPercent =
+                        if (hasCachedLeft)
+                            lastKnownLeftPercent
+                        else 0,
+                    rightPercent =
+                        if (hasCachedRight)
+                            lastKnownRightPercent
+                        else 0,
+                    casePercent =
+                        if (hasCachedCase)
+                            lastKnownCasePercent
+                        else -1,
+                    isLeftCharging =
+                        if (hasCachedLeft)
+                            lastKnownLeftCharging
+                        else false,
+                    isRightCharging =
+                        if (hasCachedRight)
+                            lastKnownRightCharging
+                        else false,
+                    isCaseCharging =
+                        if (hasCachedCase)
+                            lastKnownCaseCharging
+                        else false,
+                    isLeftDead = !hasCachedLeft &&
+                        hasCachedRight,
+                    isRightDead = !hasCachedRight &&
+                        hasCachedLeft,
+                    isCaseDead = false
+                )
+            } else {
+                current.battery
+            }
+
             current.copy(
                 connectionState =
                     ConnectionState.CONNECTED,
+                battery = restoredBattery,
                 deviceInfo = PodDeviceInfo(
                     deviceName = deviceName,
                     macAddress = macAddress,
@@ -284,6 +572,11 @@ class BluetoothPodsManager private constructor(
                 device?.let { handleDeviceConnected(it) }
             }
             BluetoothHeadset.STATE_DISCONNECTED -> {
+                // Do NOT reset battery cache here!
+                // We preserve it so that when the
+                // surviving pod reconnects we can
+                // restore the last known state and
+                // detect the dead pod.
                 _state.update { current ->
                     current.copy(
                         connectionState =
@@ -316,6 +609,7 @@ class BluetoothPodsManager private constructor(
             }
             BluetoothAdapter.STATE_OFF -> {
                 bleScanner.stopScanning()
+                resetBatteryCache()
                 _state.update {
                     it.copy(
                         connectionState =
@@ -421,16 +715,4 @@ class BluetoothPodsManager private constructor(
         }
     }
 
-    companion object {
-        @Volatile
-        private var INSTANCE: BluetoothPodsManager? = null
-
-        fun getInstance(context: Context): BluetoothPodsManager {
-            return INSTANCE ?: synchronized(this) {
-                INSTANCE ?: BluetoothPodsManager(
-                    context.applicationContext
-                ).also { INSTANCE = it }
-            }
-        }
-    }
 }

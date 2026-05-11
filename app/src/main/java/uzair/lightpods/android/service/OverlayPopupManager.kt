@@ -434,6 +434,7 @@ class OverlayPopupManager(
             buildBatteryCard(
                 label = "Left",
                 percent = scan.battery.leftPercent,
+                isDead = scan.battery.isLeftDead,
                 note = if (scan.isLeftMicrophone) {
                     "Mic"
                 } else null,
@@ -444,6 +445,7 @@ class OverlayPopupManager(
             buildBatteryCard(
                 label = "Case",
                 percent = scan.battery.casePercent,
+                isDead = scan.battery.isCaseDead,
                 note = null,
                 palette = palette
             )
@@ -452,6 +454,7 @@ class OverlayPopupManager(
             buildBatteryCard(
                 label = "Right",
                 percent = scan.battery.rightPercent,
+                isDead = scan.battery.isRightDead,
                 note = if (!scan.isLeftMicrophone) {
                     "Mic"
                 } else null,
@@ -465,11 +468,16 @@ class OverlayPopupManager(
     private fun buildBatteryCard(
         label: String,
         percent: Int,
+        isDead: Boolean = false,
         note: String?,
         palette: OverlayPalette
     ): View {
         val percentValid = percent in 0..100
-        val color = batteryColor(percent)
+        val color = if (isDead) {
+            Color.parseColor("#BA1A1A")
+        } else {
+            batteryColor(percent)
+        }
 
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
@@ -500,12 +508,19 @@ class OverlayPopupManager(
         card.addView(title)
 
         val value = TextView(context).apply {
-            text = if (percentValid) "$percent%" else "NA"
+            text = when {
+                isDead -> "Dead"
+                percentValid -> "$percent%"
+                else -> "NA"
+            }
             setTextSize(
                 TypedValue.COMPLEX_UNIT_SP,
                 18f
             )
-            setTextColor(palette.onSurface)
+            setTextColor(
+                if (isDead) Color.parseColor("#BA1A1A")
+                else palette.onSurface
+            )
             typeface = Typeface.create(
                 "sans-serif",
                 Typeface.BOLD
@@ -514,7 +529,22 @@ class OverlayPopupManager(
         }
         card.addView(value)
 
-        if (note != null) {
+        if (isDead) {
+            val deadNote = TextView(context).apply {
+                text = "Dead"
+                setTextSize(
+                    TypedValue.COMPLEX_UNIT_SP,
+                    11f
+                )
+                setTextColor(Color.parseColor("#BA1A1A"))
+                typeface = Typeface.create(
+                    "sans-serif-medium",
+                    Typeface.NORMAL
+                )
+                maxLines = 1
+            }
+            card.addView(deadNote)
+        } else if (note != null) {
             val noteView = TextView(context).apply {
                 text = note
                 setTextSize(
@@ -541,7 +571,11 @@ class OverlayPopupManager(
             android.R.attr.progressBarStyleHorizontal
         ).apply {
             max = 100
-            progress = if (percentValid) percent else 0
+            this.progress = when {
+                isDead -> 0
+                percentValid -> percent
+                else -> 0
+            }
             progressTintList = ColorStateList.valueOf(color)
             progressBackgroundTintList =
                 ColorStateList.valueOf(palette.outlineVariant)
