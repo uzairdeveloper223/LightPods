@@ -1,8 +1,13 @@
 package uzair.lightpods.android.ui.screens
 
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
+import android.os.PowerManager
+import androidx.core.content.ContextCompat
 import android.provider.Settings as AndroidSettings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,6 +29,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.BatteryChargingFull
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Info
 import androidx.compose.material.icons.rounded.PrivacyTip
 import androidx.compose.material.icons.rounded.Security
@@ -43,6 +49,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -53,8 +63,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import uzair.lightpods.android.settings.ThemeMode
-import uzair.lightpods.android.ui.components.PermissionStatusCard
+import uzair.lightpods.android.ui.theme.BatteryFull
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,60 +121,12 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item { SettingsHero() }
-            item {
-                PermissionStatusCard(
-                    onRequestNotificationPermission =
-                        onRequestNotificationPermission,
-                    showGrantedStatuses = true
-                )
-            }
             item { ThemeSection(currentTheme, onThemeChange) }
             item {
-                SettingsGroup(
-                    title = "Permissions",
-                    subtitle = "Keep the monitor alive and let popups appear"
-                ) {
-                    SettingsActionRow(
-                        icon = Icons.Rounded.Settings,
-                        label = "Overlay permission",
-                        subtitle = "Show connection popup over other apps",
-                        onClick = {
-                            if (Build.VERSION.SDK_INT >=
-                                Build.VERSION_CODES.M
-                            ) {
-                                context.startActivity(
-                                    Intent(
-                                        AndroidSettings
-                                            .ACTION_MANAGE_OVERLAY_PERMISSION,
-                                        Uri.parse(
-                                            "package:" +
-                                                context.packageName
-                                        )
-                                    )
-                                )
-                            }
-                        }
-                    )
-                    SettingsDivider()
-                    SettingsActionRow(
-                        icon = Icons.Rounded
-                            .BatteryChargingFull,
-                        label = "Battery optimization",
-                        subtitle = "Disable restrictions for reliable scanning",
-                        onClick = {
-                            if (Build.VERSION.SDK_INT >=
-                                Build.VERSION_CODES.M
-                            ) {
-                                context.startActivity(
-                                    Intent(
-                                        AndroidSettings
-                                            .ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
-                                    )
-                                )
-                            }
-                        }
-                    )
-                }
+                PermissionsSection(
+                    onRequestNotificationPermission =
+                        onRequestNotificationPermission
+                )
             }
             item {
                 SettingsGroup(
@@ -491,11 +455,353 @@ private fun SettingsActionRow(
 }
 
 @Composable
+private fun PermissionsSection(
+    onRequestNotificationPermission: (() -> Unit)? = null
+) {
+    val context = LocalContext.current
+
+    // Refresh permission state when user returns
+    // from system settings.
+    var refreshKey by remember { mutableIntStateOf(0) }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        refreshKey++
+    }
+
+    // ── Check all permissions ──
+    val btManager = remember(refreshKey) {
+        context.getSystemService(
+            Context.BLUETOOTH_SERVICE
+        ) as? BluetoothManager
+    }
+    val btEnabled = remember(refreshKey) {
+        btManager?.adapter?.isEnabled == true
+    }
+    val hasBtPerms = remember(refreshKey) {
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.S
+        ) {
+            hasPermission(
+                context,
+                android.Manifest.permission.BLUETOOTH_CONNECT
+            ) && hasPermission(
+                context,
+                android.Manifest.permission.BLUETOOTH_SCAN
+            )
+        } else true
+    }
+    val hasLocation = remember(refreshKey) {
+        hasPermission(
+            context,
+            android.Manifest.permission
+                .ACCESS_FINE_LOCATION
+        )
+    }
+    val hasBgLocation = remember(refreshKey) {
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.Q
+        ) {
+            hasPermission(
+                context,
+                android.Manifest.permission
+                    .ACCESS_BACKGROUND_LOCATION
+            )
+        } else true
+    }
+    val hasOverlay = remember(refreshKey) {
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.M
+        ) {
+            AndroidSettings.canDrawOverlays(context)
+        } else true
+    }
+    val hasBatteryExempt = remember(refreshKey) {
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.M
+        ) {
+            val pm = context.getSystemService(
+                Context.POWER_SERVICE
+            ) as? PowerManager
+            pm?.isIgnoringBatteryOptimizations(
+                context.packageName
+            ) ?: true
+        } else true
+    }
+    val hasNotifications = remember(refreshKey) {
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.TIRAMISU
+        ) {
+            hasPermission(
+                context,
+                android.Manifest.permission
+                    .POST_NOTIFICATIONS
+            )
+        } else true
+    }
+
+    val allGranted = btEnabled && hasBtPerms &&
+        hasLocation && hasBgLocation &&
+        hasOverlay && hasBatteryExempt &&
+        hasNotifications
+
+    SettingsGroup(
+        title = "Permissions",
+        subtitle = if (allGranted)
+            "All permissions granted — everything is ready"
+        else
+            "Some permissions need attention for reliable scanning"
+    ) {
+        // Bluetooth
+        SettingsPermissionRow(
+            icon = Icons.Rounded.Settings,
+            label = "Bluetooth",
+            subtitle = if (btEnabled) "Enabled"
+            else "Turn on Bluetooth to scan",
+            isGranted = btEnabled,
+            onClick = {
+                context.startActivity(
+                    Intent(
+                        AndroidSettings
+                            .ACTION_BLUETOOTH_SETTINGS
+                    )
+                )
+            }
+        )
+
+        // BT Connect/Scan (Android 12+)
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.S
+        ) {
+            SettingsDivider()
+            SettingsPermissionRow(
+                icon = Icons.Rounded.Settings,
+                label = "Bluetooth permission",
+                subtitle = if (hasBtPerms)
+                    "Connect & scan access granted"
+                else "Required for BLE scanning",
+                isGranted = hasBtPerms,
+                onClick = { openAppSettings(context) }
+            )
+        }
+
+        // Location
+        SettingsDivider()
+        SettingsPermissionRow(
+            icon = Icons.Rounded.Settings,
+            label = "Location",
+            subtitle = if (hasLocation)
+                "Fine location access granted"
+            else "Required for BLE discovery",
+            isGranted = hasLocation,
+            onClick = { openAppSettings(context) }
+        )
+
+        // Background Location (Android 10+)
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.Q
+        ) {
+            SettingsDivider()
+            SettingsPermissionRow(
+                icon = Icons.Rounded.Settings,
+                label = "Background location",
+                subtitle = if (hasBgLocation)
+                    "Background scanning allowed"
+                else "Needed for always-on monitoring",
+                isGranted = hasBgLocation,
+                onClick = { openAppSettings(context) }
+            )
+        }
+
+        // Overlay
+        SettingsDivider()
+        SettingsPermissionRow(
+            icon = Icons.Rounded.Settings,
+            label = "Overlay permission",
+            subtitle = if (hasOverlay)
+                "Connection popup can appear"
+            else "Required to show popup",
+            isGranted = hasOverlay,
+            onClick = {
+                if (Build.VERSION.SDK_INT >=
+                    Build.VERSION_CODES.M
+                ) {
+                    context.startActivity(
+                        Intent(
+                            AndroidSettings
+                                .ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse(
+                                "package:" +
+                                    context.packageName
+                            )
+                        )
+                    )
+                }
+            }
+        )
+
+        // Battery optimization
+        SettingsDivider()
+        SettingsPermissionRow(
+            icon = Icons.Rounded
+                .BatteryChargingFull,
+            label = "Battery optimization",
+            subtitle = if (hasBatteryExempt)
+                "Exempt from battery restrictions"
+            else "Disable for reliable scanning",
+            isGranted = hasBatteryExempt,
+            onClick = {
+                if (Build.VERSION.SDK_INT >=
+                    Build.VERSION_CODES.M
+                ) {
+                    context.startActivity(
+                        Intent(
+                            AndroidSettings
+                                .ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS
+                        )
+                    )
+                }
+            }
+        )
+
+        // Notifications (Android 13+)
+        if (Build.VERSION.SDK_INT >=
+            Build.VERSION_CODES.TIRAMISU
+        ) {
+            SettingsDivider()
+            SettingsPermissionRow(
+                icon = Icons.Rounded.Settings,
+                label = "Notifications",
+                subtitle = if (hasNotifications)
+                    "Status notifications enabled"
+                else "Needed for battery alerts",
+                isGranted = hasNotifications,
+                onClick = {
+                    onRequestNotificationPermission
+                        ?.invoke()
+                        ?: openAppSettings(context)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+private fun SettingsPermissionRow(
+    icon: ImageVector,
+    label: String,
+    subtitle: String,
+    isGranted: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(14.dp)
+    ) {
+        Surface(
+            shape = RoundedCornerShape(18.dp),
+            color = if (isGranted) {
+                BatteryFull.copy(alpha = 0.14f)
+            } else {
+                MaterialTheme.colorScheme
+                    .secondaryContainer
+            }
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(11.dp)
+                    .size(22.dp),
+                tint = if (isGranted) {
+                    BatteryFull
+                } else {
+                    MaterialTheme.colorScheme
+                        .onSecondaryContainer
+                }
+            )
+        }
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme
+                    .typography.bodyLarge
+                    .copy(fontWeight = FontWeight.SemiBold)
+            )
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme
+                    .colorScheme.onSurfaceVariant
+            )
+        }
+        if (isGranted) {
+            Row(
+                verticalAlignment =
+                    Alignment.CenterVertically,
+                horizontalArrangement =
+                    Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    imageVector =
+                        Icons.Rounded.CheckCircle,
+                    contentDescription = "Granted",
+                    modifier = Modifier.size(16.dp),
+                    tint = BatteryFull
+                )
+                Text(
+                    text = "Granted",
+                    style = MaterialTheme
+                        .typography.labelLarge
+                        .copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                    color = BatteryFull
+                )
+            }
+        } else {
+            Text(
+                text = "Open",
+                style = MaterialTheme
+                    .typography.labelLarge
+                    .copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+    }
+}
+
+@Composable
 private fun SettingsDivider() {
     HorizontalDivider(
         thickness = 0.5.dp,
         color = MaterialTheme.colorScheme
             .outlineVariant.copy(alpha = 0.45f),
         modifier = Modifier.padding(horizontal = 16.dp)
+    )
+}
+
+private fun hasPermission(
+    context: Context,
+    permission: String
+): Boolean {
+    return ContextCompat.checkSelfPermission(
+        context, permission
+    ) == PackageManager.PERMISSION_GRANTED
+}
+
+private fun openAppSettings(context: Context) {
+    context.startActivity(
+        Intent(
+            AndroidSettings
+                .ACTION_APPLICATION_DETAILS_SETTINGS,
+            Uri.parse(
+                "package:" + context.packageName
+            )
+        )
     )
 }
