@@ -8,6 +8,9 @@ import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,9 +22,17 @@ class BlePodsScanner(private val context: Context) {
     val scanState: StateFlow<BleScanState> =
         _scanState.asStateFlow()
 
+    private val _scanError = MutableStateFlow<String?>(null)
+    val scanError: StateFlow<String?> =
+        _scanError.asStateFlow()
+
     private var bluetoothAdapter: BluetoothAdapter? =
         null
     private var isScanning = false
+
+    // ── Scan retry for BLE stack corruption ──
+    private var retryCount = 0
+    private val retryHandler = Handler(Looper.getMainLooper())
 
     // ── Flip stabilization ──
     // The isFlipped bit oscillates between BLE packets.
@@ -36,14 +47,59 @@ class BlePodsScanner(private val context: Context) {
                 callbackType: Int,
                 result: ScanResult
             ) {
+                // Scan is working — reset retry counter
+                retryCount = 0
+                _scanError.value = null
                 parseAppleProximityData(result)
             }
 
             override fun onBatchScanResults(
                 results: MutableList<ScanResult>
             ) {
+                if (results.isNotEmpty()) {
+                    retryCount = 0
+                    _scanError.value = null
+                }
                 results.forEach {
                     parseAppleProximityData(it)
+                }
+            }
+
+            override fun onScanFailed(errorCode: Int) {
+                val errorMsg = when (errorCode) {
+                    SCAN_FAILED_ALREADY_STARTED ->
+                        "Scan already started"
+                    SCAN_FAILED_APPLICATION_REGISTRATION_FAILED ->
+                        "BLE stack registration failed " +
+                            "(corrupted state)"
+                    SCAN_FAILED_FEATURE_UNSUPPORTED ->
+                        "BLE scan feature unsupported"
+                    SCAN_FAILED_INTERNAL_ERROR ->
+                        "BLE internal error"
+                    else ->
+                        "Unknown scan error ($errorCode)"
+                }
+                Log.e(TAG,
+                    "BLE scan failed: $errorMsg " +
+                        "(code=$errorCode, " +
+                        "retry=$retryCount/$MAX_RETRIES)")
+                _scanError.value = errorMsg
+                isScanning = false
+
+                // Auto-retry with exponential backoff
+                // for recoverable errors
+                if (retryCount < MAX_RETRIES &&
+                    errorCode != SCAN_FAILED_FEATURE_UNSUPPORTED
+                ) {
+                    retryCount++
+                    val delayMs =
+                        RETRY_BASE_DELAY_MS * retryCount
+                    Log.d(TAG,
+                        "Retrying scan in ${delayMs}ms " +
+                            "(attempt $retryCount)")
+                    retryHandler.postDelayed({
+                        startScanning()
+                    }, delayMs)
                 }
             }
         }
@@ -94,6 +150,8 @@ class BlePodsScanner(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun stopScanning() {
+        retryHandler.removeCallbacksAndMessages(null)
+        retryCount = 0
         if (!isScanning) return
         try {
             bluetoothAdapter?.bluetoothLeScanner
@@ -284,11 +342,14 @@ class BlePodsScanner(private val context: Context) {
     }
 
     companion object {
+        private const val TAG = "BlePodsScanner"
         const val APPLE_COMPANY_ID = 0x004C
         const val PROXIMITY_PAIRING_TYPE = 0x07
         const val PROXIMITY_DATA_LENGTH = 27
         const val MIN_PAYLOAD_LENGTH = 10
         private const val FLIP_THRESHOLD = 3  // consecutive packets to confirm flip change
+        private const val MAX_RETRIES = 3
+        private const val RETRY_BASE_DELAY_MS = 2000L
     }
 }
 
