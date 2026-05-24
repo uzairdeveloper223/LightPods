@@ -5,8 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Privacy Policy - LightPods</title>
-    <meta name="description" content="Privacy Policy for the LightPods Android application.">
+    <meta name="description"
+        content="LightPods privacy policy. No personal data leaves your device. No analytics, ads, accounts, or cloud sync.">
+    <meta name="author" content="Uzair Mughal">
     <meta name="theme-color" content="#f7faf2">
+    <meta property="og:title" content="Privacy Policy - LightPods">
+    <meta property="og:description" content="LightPods does not collect, store, or transmit any personal data.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://lightpods.rf.gd/privacy/">
+    <meta property="og:image" content="https://lightpods.rf.gd/assets/icon.png">
     <link rel="icon" href="../assets/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,24 +29,30 @@
             --md-sys-color-on-primary: #ffffff;
             --md-sys-color-primary-container: #74f8e4;
             --md-sys-color-on-primary-container: #00201d;
+            --md-sys-color-secondary: #4a635f;
             --md-sys-color-secondary-container: #cce8e1;
+            --md-sys-color-tertiary: #456179;
             --md-sys-color-tertiary-container: #cce5ff;
+            --md-sys-color-error-container: #ffdad6;
             --md-sys-color-surface: #f7faf2;
             --md-sys-color-surface-container-low: #ffffff;
             --md-sys-color-surface-container: #eef2ea;
             --md-sys-color-surface-container-high: #e7ebe4;
+            --md-sys-color-surface-container-highest: #dfe4dc;
             --md-sys-color-on-surface: #181d1a;
             --md-sys-color-on-surface-variant: #3f4946;
             --md-sys-color-outline: #6f7976;
             --md-sys-color-outline-variant: #bec9c4;
+            --md-sys-color-scrim: rgba(14, 20, 18, 0.18);
             --md-sys-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
             --md-sys-elevation-2: 0 2px 6px rgba(0, 0, 0, 0.13), 0 8px 20px rgba(0, 0, 0, 0.08);
+            --shape-xs: 8px;
             --shape-sm: 12px;
             --shape-md: 18px;
             --shape-lg: 24px;
             --shape-xl: 32px;
             --page-gutter: 24px;
-            --max-width: 1160px;
+            --max-width: 1180px;
             --font-display: "Google Sans", "Roboto", system-ui, sans-serif;
             --font-body: "Roboto", system-ui, sans-serif;
         }
@@ -51,16 +64,21 @@
                 --md-sys-color-on-primary: #003733;
                 --md-sys-color-primary-container: #005048;
                 --md-sys-color-on-primary-container: #74f8e4;
+                --md-sys-color-secondary: #b1ccc5;
                 --md-sys-color-secondary-container: #334b47;
+                --md-sys-color-tertiary: #acc9e5;
                 --md-sys-color-tertiary-container: #2d4960;
+                --md-sys-color-error-container: #93000a;
                 --md-sys-color-surface: #101513;
                 --md-sys-color-surface-container-low: #181d1a;
                 --md-sys-color-surface-container: #1c211e;
                 --md-sys-color-surface-container-high: #262b28;
+                --md-sys-color-surface-container-highest: #313633;
                 --md-sys-color-on-surface: #e0e4de;
                 --md-sys-color-on-surface-variant: #bec9c4;
                 --md-sys-color-outline: #89938f;
                 --md-sys-color-outline-variant: #3f4946;
+                --md-sys-color-scrim: rgba(0, 0, 0, 0.34);
                 --md-sys-elevation-1: 0 1px 3px rgba(0, 0, 0, 0.5);
                 --md-sys-elevation-2: 0 8px 24px rgba(0, 0, 0, 0.42);
             }
@@ -75,52 +93,29 @@
 
         html {
             scroll-behavior: smooth;
-            overflow-x: hidden;
         }
 
         body {
             margin: 0;
             background:
-                radial-gradient(circle at 8% 4%, rgba(116, 248, 228, 0.30), transparent 24rem),
-                radial-gradient(circle at 92% 14%, rgba(204, 229, 255, 0.42), transparent 28rem),
+                radial-gradient(circle at 8% 6%, rgba(116, 248, 228, 0.30), transparent 24rem),
+                radial-gradient(circle at 92% 10%, rgba(204, 229, 255, 0.44), transparent 28rem),
                 var(--md-sys-color-surface);
             color: var(--md-sys-color-on-surface);
             font-family: var(--font-body);
             font-size: 16px;
-            line-height: 1.7;
+            line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             overflow-x: hidden;
-            width: 100%;
         }
 
         a {
-            color: var(--md-sys-color-primary);
-            font-weight: 700;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
+            color: inherit;
         }
 
         img {
             display: block;
             max-width: 100%;
-        }
-
-        h1,
-        h2,
-        h3,
-        p {
-            margin: 0;
-        }
-
-        h1,
-        h2,
-        h3 {
-            font-family: var(--font-display);
-            letter-spacing: 0;
-            line-height: 1.1;
         }
 
         .material-symbols-rounded {
@@ -142,6 +137,7 @@
             background: var(--md-sys-color-primary);
             color: var(--md-sys-color-on-primary);
             padding: 10px 16px;
+            text-decoration: none;
             transition: transform 160ms ease;
         }
 
@@ -156,7 +152,6 @@
             background: color-mix(in srgb, var(--md-sys-color-surface) 86%, transparent);
             border-bottom: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 62%, transparent);
             backdrop-filter: blur(18px);
-            height: 72px;
         }
 
         .top-app-bar__content {
@@ -165,7 +160,7 @@
             justify-content: space-between;
             gap: 20px;
             max-width: var(--max-width);
-            height: 100%;
+            min-height: 72px;
             margin: 0 auto;
             padding: 0 var(--page-gutter);
         }
@@ -176,6 +171,7 @@
             gap: 12px;
             color: var(--md-sys-color-on-surface);
             font-family: var(--font-display);
+            font-size: 1rem;
             font-weight: 700;
             text-decoration: none;
         }
@@ -187,46 +183,113 @@
             box-shadow: var(--md-sys-elevation-1);
         }
 
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px;
+            border-radius: 999px;
+            background: var(--md-sys-color-surface-container);
+        }
+
+        .nav-links a {
+            border-radius: 999px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 10px 16px;
+            text-decoration: none;
+            transition: background 160ms ease, color 160ms ease;
+        }
+
+        .nav-links a:hover,
+        .nav-links a:focus-visible {
+            background: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-surface);
+            outline: none;
+        }
+
         .button {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
             min-height: 48px;
+            border: 0;
             border-radius: 999px;
-            background: var(--md-sys-color-primary);
-            color: var(--md-sys-color-on-primary);
+            cursor: pointer;
             font-family: var(--font-display);
             font-size: 0.94rem;
             font-weight: 700;
             padding: 0 24px;
             text-decoration: none;
-            box-shadow: var(--md-sys-elevation-1);
+            transition: box-shadow 160ms ease, transform 160ms ease, background 160ms ease;
             white-space: nowrap;
         }
 
-        .button:hover {
-            text-decoration: none;
-        }
-
         .button:focus-visible,
-        .toc a:focus-visible {
+        .icon-button:focus-visible {
             outline: 3px solid color-mix(in srgb, var(--md-sys-color-primary) 45%, transparent);
             outline-offset: 3px;
         }
 
+        .button:hover {
+            transform: translateY(-1px);
+        }
+
+        .button--filled {
+            background: var(--md-sys-color-primary);
+            color: var(--md-sys-color-on-primary);
+            box-shadow: var(--md-sys-elevation-1);
+        }
+
+        .button--tonal {
+            background: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-surface);
+        }
+
+        .button--outlined {
+            border: 1px solid var(--md-sys-color-outline-variant);
+            background: transparent;
+            color: var(--md-sys-color-primary);
+        }
+
+        .icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border: 0;
+            border-radius: 999px;
+            background: var(--md-sys-color-surface-container);
+            color: var(--md-sys-color-on-surface-variant);
+            text-decoration: none;
+        }
+
         main {
+            padding-bottom: 88px;
+        }
+
+        .section {
             max-width: var(--max-width);
             margin: 0 auto;
-            padding: 64px var(--page-gutter) 88px;
+            padding: 88px var(--page-gutter);
         }
 
         .hero {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) minmax(260px, 360px);
-            align-items: end;
-            gap: 36px;
-            margin-bottom: 44px;
+            grid-template-columns: minmax(0, 1fr) minmax(320px, 480px);
+            align-items: center;
+            gap: 56px;
+            min-height: calc(100svh - 72px);
+            padding-top: 48px;
+            padding-bottom: 64px;
+        }
+
+        .hero__copy {
+            max-width: 650px;
         }
 
         .eyebrow {
@@ -243,157 +306,395 @@
             padding: 0 14px;
         }
 
-        h1 {
-            max-width: 760px;
-            margin-top: 18px;
-            font-size: clamp(2.2rem, 5vw + 1rem, 3.75rem);
-        }
-
-        .effective {
-            margin-top: 16px;
-            color: var(--md-sys-color-on-surface-variant);
+        .eyebrow .material-symbols-rounded {
             font-size: 1rem;
         }
 
-        .summary-panel {
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: var(--shape-xl);
-            background: linear-gradient(135deg, var(--md-sys-color-primary-container), var(--md-sys-color-tertiary-container));
-            color: var(--md-sys-color-on-primary-container);
-            padding: 24px;
-            box-shadow: var(--md-sys-elevation-1);
+        h1,
+        h2,
+        h3,
+        p {
+            margin: 0;
         }
 
-        .summary-panel .material-symbols-rounded {
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-display);
+            letter-spacing: 0;
+        }
+
+        h1 {
+            max-width: 680px;
+            margin-top: 20px;
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 0.96;
+        }
+
+        .hero__lead {
+            max-width: 600px;
+            margin-top: 24px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 1.16rem;
+            line-height: 1.65;
+        }
+
+        .hero__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .hero__stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            max-width: 620px;
+            margin-top: 36px;
+        }
+
+        .stat {
+            min-height: 104px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-lg);
+            background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 88%, transparent);
+            padding: 18px;
+        }
+
+        .stat strong {
+            display: block;
+            color: var(--md-sys-color-primary);
+            font-family: var(--font-display);
+            font-size: 1.25rem;
+            line-height: 1.1;
+        }
+
+        .stat span {
+            display: block;
+            margin-top: 8px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.86rem;
+            line-height: 1.35;
+        }
+
+        .device-stage {
+            display: grid;
+            place-items: center;
+            min-height: 560px;
+            position: relative;
+        }
+
+        .device-stage::before {
+            content: "";
+            position: absolute;
+            width: 82%;
+            aspect-ratio: 1;
+            border-radius: 48px;
+            background:
+                linear-gradient(135deg, rgba(116, 248, 228, 0.28), rgba(204, 229, 255, 0.28)),
+                var(--md-sys-color-surface-container);
+            transform: rotate(8deg);
+            box-shadow: var(--md-sys-elevation-2);
+        }
+
+        .pixel {
+            position: relative;
+            width: min(100%, 342px);
+            min-height: 700px;
+            border: 10px solid #1b1f1d;
+            border-radius: 42px;
+            background: #101513;
+            box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+            overflow: hidden;
+        }
+
+        .app-screen {
+            min-height: 680px;
+            background:
+                radial-gradient(circle at 22% 10%, rgba(116, 248, 228, 0.28), transparent 13rem),
+                #f7faf2;
+            color: #181d1a;
+            padding: 22px 16px 18px;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #202622;
+            font-family: var(--font-display);
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 0 6px 18px;
+        }
+
+        .screen-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .screen-top img {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+        }
+
+        .screen-title {
+            flex: 1;
+        }
+
+        .screen-title strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            line-height: 1.2;
+        }
+
+        .screen-title span {
+            display: block;
+            color: #4f5d58;
+            font-size: 0.78rem;
+        }
+
+        .pods-sheet {
+            margin-top: 24px;
+            border-radius: 30px;
+            background: #ffffff;
+            box-shadow: 0 14px 40px rgba(12, 24, 21, 0.14);
+            padding: 18px;
+        }
+
+        .pods-visual {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            align-items: end;
+            gap: 10px;
+            min-height: 146px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #e4fff8, #eef5ff);
+            padding: 18px;
+        }
+
+        .pod {
+            display: grid;
+            justify-items: center;
+            gap: 10px;
+        }
+
+        .bud {
+            width: 42px;
+            height: 92px;
+            border-radius: 26px 26px 18px 18px;
+            background: linear-gradient(180deg, #ffffff, #dfe7e3);
+            box-shadow: inset -8px -12px 18px rgba(82, 97, 91, 0.18), 0 10px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .case {
+            width: 76px;
+            height: 58px;
+            border-radius: 24px 24px 28px 28px;
+            background: linear-gradient(180deg, #ffffff, #dfe7e3);
+            box-shadow: inset 0 -12px 18px rgba(82, 97, 91, 0.14), 0 10px 18px rgba(0, 0, 0, 0.12);
+        }
+
+        .battery-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            border-radius: 999px;
+            background: #d8f4ed;
+            color: #005048;
+            font-size: 0.76rem;
+            font-weight: 700;
+            padding: 6px 9px;
+        }
+
+        .screen-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 66px;
+            margin-top: 12px;
+            border-radius: 22px;
+            background: #eef2ea;
+            padding: 12px;
+        }
+
+        .screen-row .material-symbols-rounded {
+            display: grid;
+            place-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            background: #cce8e1;
+            color: #006a60;
+        }
+
+        .screen-row strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            line-height: 1.25;
+        }
+
+        .screen-row span {
+            display: block;
+            color: #4f5d58;
+            font-size: 0.78rem;
+        }
+
+        .screen-nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-top: 18px;
+            border-radius: 24px;
+            background: #eef2ea;
+            padding: 8px;
+        }
+
+        .screen-nav span {
+            display: grid;
+            place-items: center;
+            min-height: 44px;
+            border-radius: 18px;
+            color: #51615c;
+        }
+
+        .screen-nav span:first-child {
+            background: #cce8e1;
+            color: #005048;
+        }
+
+        .section-heading {
+            max-width: 720px;
+            margin-bottom: 32px;
+        }
+
+        .section-heading h2 {
+            margin-top: 12px;
+            font-size: 2.75rem;
+            line-height: 1.08;
+        }
+
+        .section-heading p {
+            margin-top: 16px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 1.05rem;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .feature-card {
+            min-height: 258px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-lg);
+            background: var(--md-sys-color-surface-container-low);
+            padding: 22px;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .feature-card:hover {
+            border-color: color-mix(in srgb, var(--md-sys-color-primary) 44%, var(--md-sys-color-outline-variant));
+            box-shadow: var(--md-sys-elevation-2);
+            transform: translateY(-2px);
+        }
+
+        .feature-card .material-symbols-rounded {
             display: grid;
             place-items: center;
             width: 52px;
             height: 52px;
             border-radius: 18px;
-            margin-bottom: 20px;
-            background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 70%, transparent);
-            color: var(--md-sys-color-primary);
-        }
-
-        .summary-panel strong {
-            display: block;
-            font-family: var(--font-display);
-            font-size: 1.28rem;
-            line-height: 1.22;
-        }
-
-        .summary-panel p {
-            margin-top: 10px;
-            color: color-mix(in srgb, var(--md-sys-color-on-primary-container) 82%, transparent);
-            font-size: 0.95rem;
-        }
-
-        .policy-layout {
-            display: grid;
-            grid-template-columns: 260px 1fr;
-            gap: 28px;
-            align-items: start;
-        }
-
-        .toc {
-            position: sticky;
-            top: 96px;
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: var(--shape-lg);
-            background: var(--md-sys-color-surface-container-low);
-            padding: 10px;
-            box-shadow: var(--md-sys-elevation-1);
-        }
-
-        .toc a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            min-height: 44px;
-            border-radius: 18px;
-            color: var(--md-sys-color-on-surface-variant);
-            font-family: var(--font-display);
-            font-size: 0.9rem;
-            padding: 0 12px;
-            text-decoration: none;
-            transition: background 150ms ease, color 150ms ease, box-shadow 150ms ease;
-        }
-
-        .toc a:hover {
-            background: var(--md-sys-color-secondary-container);
-            color: var(--md-sys-color-on-surface);
-            text-decoration: none;
-        }
-
-        .toc a.active {
+            margin-bottom: 28px;
             background: var(--md-sys-color-primary-container);
             color: var(--md-sys-color-on-primary-container);
-            font-weight: 700;
-            box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-sys-color-primary) 30%, transparent);
         }
 
-        .policy-content {
-            display: grid;
-            gap: 16px;
-            width: 100%;
-            max-width: 860px;
+        .feature-card h3 {
+            font-size: 1.08rem;
+            line-height: 1.28;
         }
 
-        .policy-card {
-            border: 1px solid var(--md-sys-color-outline-variant);
-            border-radius: var(--shape-lg);
-            background: var(--md-sys-color-surface-container-low);
-            padding: 28px;
-            box-shadow: var(--md-sys-elevation-1);
-            scroll-margin-top: 110px;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .policy-card h2 {
-            color: var(--md-sys-color-primary);
-            font-size: 1.32rem;
-        }
-
-        .policy-card p,
-        .policy-card li {
+        .feature-card p {
+            margin-top: 10px;
             color: var(--md-sys-color-on-surface-variant);
-            font-size: 0.97rem;
+            font-size: 0.94rem;
         }
 
-        .policy-card p {
-            margin-top: 12px;
-        }
-
-        .policy-card ul {
+        .protocol-grid {
             display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
             gap: 10px;
-            margin: 16px 0 0;
-            padding: 0;
-            list-style: none;
         }
 
-        .policy-card li {
-            position: relative;
-            padding-left: 34px;
+        .protocol-card {
+            min-height: 132px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-md);
+            background: var(--md-sys-color-surface-container);
+            padding: 16px;
         }
 
-        .policy-card li::before {
-            content: "check";
-            position: absolute;
-            left: 0;
-            top: 1px;
-            display: grid;
-            place-items: center;
-            width: 22px;
-            height: 22px;
-            border-radius: 999px;
-            background: var(--md-sys-color-secondary-container);
+        .protocol-card span {
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .protocol-card strong {
+            display: block;
+            margin-top: 10px;
             color: var(--md-sys-color-primary);
-            font-family: "Material Symbols Rounded";
-            font-size: 0.9rem;
-            font-variation-settings: "FILL" 1, "wght" 500, "GRAD" 0, "opsz" 20;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        .protocol-card p {
+            margin-top: 8px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.82rem;
+            line-height: 1.35;
+        }
+
+        .privacy-band {
+            background:
+                linear-gradient(135deg,
+                    color-mix(in srgb, var(--md-sys-color-primary-container) 74%, transparent),
+                    color-mix(in srgb, var(--md-sys-color-tertiary-container) 74%, transparent));
+        }
+
+        .privacy-band__inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 28px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 72px var(--page-gutter);
+        }
+
+        .privacy-band h2 {
+            font-size: 2rem;
+            line-height: 1.14;
+        }
+
+        .privacy-band p {
+            max-width: 680px;
+            margin-top: 12px;
+            color: var(--md-sys-color-on-surface-variant);
         }
 
         footer {
@@ -418,49 +719,53 @@
             gap: 16px;
         }
 
-        @media (max-width: 920px) {
+        .footer-links a {
+            color: var(--md-sys-color-primary);
+            font-weight: 700;
+            text-decoration: none;
+        }
 
-            .hero,
-            .policy-layout {
+        .mobile-nav {
+            display: none;
+        }
+
+        @media (max-width: 1040px) {
+            h1 {
+                font-size: 3.55rem;
+            }
+
+            .hero {
                 grid-template-columns: 1fr;
+                min-height: 0;
             }
 
-            .toc {
-                position: sticky;
-                top: 72px;
-                z-index: 9;
-                display: flex;
-                flex-direction: row;
-                flex-wrap: nowrap;
-                overflow-x: auto;
-                gap: 8px;
-                background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 92%, transparent);
-                backdrop-filter: blur(12px);
-                border-radius: var(--shape-lg);
-                border: 1px solid var(--md-sys-color-outline-variant);
-                padding: 10px;
-                margin: 0 0 20px 0;
-                box-shadow: var(--md-sys-elevation-1);
-                -webkit-overflow-scrolling: touch;
-                scrollbar-width: none;
-                width: 100%;
+            .hero__copy {
+                max-width: 760px;
             }
 
-            .toc::-webkit-scrollbar {
-                display: none;
+            .device-stage {
+                min-height: 500px;
             }
 
-            .toc a {
-                flex: 0 0 auto;
-                background: var(--md-sys-color-surface-container);
+            .pixel {
+                width: min(100%, 318px);
+                min-height: 650px;
             }
 
-            .policy-card {
-                scroll-margin-top: 160px;
+            .app-screen {
+                min-height: 630px;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .protocol-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
             }
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 720px) {
             :root {
                 --page-gutter: 16px;
             }
@@ -469,8 +774,13 @@
                 font-size: 15px;
             }
 
-            .top-app-bar {
-                height: 64px;
+            .top-app-bar__content {
+                min-height: 64px;
+            }
+
+            .nav-links,
+            .top-app-bar .button {
+                display: none;
             }
 
             .brand img {
@@ -478,37 +788,139 @@
                 height: 34px;
             }
 
-            .button {
-                min-height: 44px;
-                padding: 0 18px;
+            .section {
+                padding-top: 56px;
+                padding-bottom: 56px;
             }
 
-            main {
-                padding-top: 44px;
-                padding-bottom: 60px;
+            .hero {
+                gap: 34px;
+                padding-top: 36px;
             }
 
             h1 {
-                font-size: 2.6rem;
+                font-size: 2.72rem;
+                line-height: 1;
             }
 
-            .summary-panel,
-            .policy-card {
-                padding: 22px;
+            .hero__lead {
+                font-size: 1rem;
             }
 
-            .toc {
-                top: 64px;
+            .hero__actions {
+                display: grid;
+                grid-template-columns: 1fr;
             }
 
-            .policy-card {
-                scroll-margin-top: 148px;
+            .button {
+                width: 100%;
+            }
+
+            .hero__stats {
+                grid-template-columns: 1fr;
+            }
+
+            .device-stage {
+                min-height: 460px;
+            }
+
+            .device-stage::before {
+                width: 92%;
+                border-radius: 36px;
+            }
+
+            .pixel {
+                width: min(100%, 292px);
+                min-height: 590px;
+                border-width: 8px;
+                border-radius: 36px;
+            }
+
+            .app-screen {
+                min-height: 574px;
+                padding: 20px 13px 14px;
+            }
+
+            .pods-sheet {
+                padding: 14px;
+            }
+
+            .pods-visual {
+                min-height: 126px;
+                padding: 14px 10px;
+            }
+
+            .bud {
+                width: 35px;
+                height: 78px;
+            }
+
+            .case {
+                width: 66px;
+                height: 50px;
+            }
+
+            .section-heading h2 {
+                font-size: 2rem;
+            }
+
+            .feature-grid,
+            .protocol-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card {
+                min-height: 0;
+            }
+
+            .privacy-band__inner {
+                grid-template-columns: 1fr;
+                padding-top: 52px;
+                padding-bottom: 52px;
             }
 
             .footer-inner {
                 display: grid;
                 justify-items: start;
-                gap: 12px;
+                padding-bottom: 104px;
+            }
+
+            .mobile-nav {
+                position: fixed;
+                left: 12px;
+                right: 12px;
+                bottom: 12px;
+                z-index: 12;
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 4px;
+                border: 1px solid var(--md-sys-color-outline-variant);
+                border-radius: 28px;
+                background: color-mix(in srgb, var(--md-sys-color-surface-container-low) 90%, transparent);
+                box-shadow: var(--md-sys-elevation-2);
+                padding: 8px;
+                backdrop-filter: blur(16px);
+            }
+
+            .mobile-nav a {
+                display: grid;
+                justify-items: center;
+                gap: 4px;
+                border-radius: 20px;
+                color: var(--md-sys-color-on-surface-variant);
+                font-size: 0.72rem;
+                font-weight: 700;
+                padding: 8px 4px;
+                text-decoration: none;
+            }
+
+            .mobile-nav a.active {
+                background: var(--md-sys-color-secondary-container);
+                color: var(--md-sys-color-primary);
+            }
+
+            .mobile-nav .material-symbols-rounded {
+                font-size: 1.18rem;
             }
         }
 
@@ -523,16 +935,214 @@
                 animation-iteration-count: 1 !important;
             }
         }
+
+        .hero {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding-left: var(--page-gutter);
+            padding-right: var(--page-gutter);
+            min-height: auto;
+            padding-top: 64px;
+            padding-bottom: 56px;
+        }
+
+        .top-app-bar .button {
+            background: var(--md-sys-color-surface-container);
+            color: var(--md-sys-color-on-surface-variant);
+        }
+
+        .policy-layout {
+            display: grid;
+            grid-template-columns: 260px minmax(0, 1fr);
+            gap: 40px;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 var(--page-gutter) 88px;
+        }
+
+        .toc {
+            position: sticky;
+            top: 92px;
+            align-self: start;
+        }
+
+        .toc-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-lg);
+            background: var(--md-sys-color-surface-container-low);
+            padding: 14px;
+        }
+
+        .toc-inner a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: var(--shape-sm);
+            color: var(--md-sys-color-on-surface-variant);
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 500;
+            padding: 10px 12px;
+            text-decoration: none;
+            transition: background 160ms ease, color 160ms ease;
+        }
+
+        .toc-inner a:hover,
+        .toc-inner a:focus-visible {
+            background: var(--md-sys-color-secondary-container);
+            color: var(--md-sys-color-on-surface);
+            outline: none;
+        }
+
+        .toc-inner a .material-symbols-rounded {
+            font-size: 1.1rem;
+        }
+
+        .policy-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .policy-card {
+            min-height: 0;
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-lg);
+            background: var(--md-sys-color-surface-container-low);
+            padding: 28px;
+            transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+        }
+
+        .policy-card:hover {
+            border-color: color-mix(in srgb, var(--md-sys-color-primary) 44%, var(--md-sys-color-outline-variant));
+            box-shadow: var(--md-sys-elevation-2);
+            transform: translateY(-2px);
+        }
+
+        .policy-card h2 {
+            margin-bottom: 14px;
+            font-size: 1.45rem;
+            line-height: 1.2;
+        }
+
+        .policy-card p,
+        .policy-card ul {
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.98rem;
+            line-height: 1.65;
+        }
+
+        .policy-card ul {
+            margin: 12px 0 0;
+            padding-left: 22px;
+        }
+
+        .policy-card li+li {
+            margin-top: 8px;
+        }
+
+        .summary-panel {
+            border: 1px solid var(--md-sys-color-outline-variant);
+            border-radius: var(--shape-lg);
+            background: var(--md-sys-color-primary-container);
+            color: var(--md-sys-color-on-primary-container);
+            padding: 24px;
+        }
+
+        .summary-panel .material-symbols-rounded {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 1.6rem;
+        }
+
+        .summary-panel strong {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 1.08rem;
+            line-height: 1.3;
+        }
+
+        .summary-panel p {
+            margin-top: 8px;
+            font-size: 0.92rem;
+            line-height: 1.5;
+            opacity: 0.85;
+        }
+
+        .effective {
+            margin-top: 14px;
+            color: var(--md-sys-color-on-surface-variant);
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 1040px) {
+            .policy-layout {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .toc {
+                position: static;
+                order: -1;
+            }
+
+            .toc-inner {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+
+            .toc-inner a {
+                flex: 1 1 auto;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .policy-layout {
+                padding-bottom: 56px;
+                gap: 24px;
+            }
+
+            .policy-card {
+                padding: 20px;
+            }
+
+            .policy-card h2 {
+                font-size: 1.25rem;
+            }
+
+            .toc-inner {
+                gap: 6px;
+                padding: 10px;
+            }
+
+            .toc-inner a {
+                font-size: 0.82rem;
+                padding: 8px 10px;
+            }
+
+            .summary-panel {
+                padding: 18px;
+            }
+
+            .hero {
+                padding-top: 48px;
+                padding-bottom: 40px;
+                gap: 32px;
+            }
+        }
     </style>
 </head>
 
 <body>
     <a class="skip-link" href="#policy">Skip to policy</a>
-
     <header class="top-app-bar" aria-label="Primary navigation">
         <div class="top-app-bar__content">
             <a class="brand" href="../" aria-label="LightPods home">
-                <img src="../assets/icon.png" alt="" width="38" height="38">
+                <img src="../assets/icon.png" alt="" width="40" height="40">
                 <span>LightPods</span>
             </a>
             <a class="button" href="../">
@@ -541,7 +1151,6 @@
             </a>
         </div>
     </header>
-
     <main id="policy">
         <section class="hero" aria-labelledby="privacy-title">
             <div>
@@ -558,21 +1167,28 @@
                 <p>LightPods has no analytics, advertising SDKs, accounts, cloud sync, or telemetry servers.</p>
             </aside>
         </section>
-
         <div class="policy-layout">
             <nav class="toc" aria-label="Privacy sections">
-                <a href="#overview"><span class="material-symbols-rounded" aria-hidden="true">article</span>Overview</a>
-                <a href="#not-collected"><span class="material-symbols-rounded" aria-hidden="true">block</span>No
-                    collection</a>
-                <a href="#permissions"><span class="material-symbols-rounded"
-                        aria-hidden="true">key</span>Permissions</a>
-                <a href="#bluetooth"><span class="material-symbols-rounded" aria-hidden="true">bluetooth</span>Bluetooth
-                    data</a>
-                <a href="#services"><span class="material-symbols-rounded"
-                        aria-hidden="true">cloud_off</span>Services</a>
-                <a href="#contact"><span class="material-symbols-rounded" aria-hidden="true">mail</span>Contact</a>
+                <div class="toc-inner">
+                    <a href="#overview"><span class="material-symbols-rounded"
+                            aria-hidden="true">article</span>Overview</a>
+                    <a href="#not-collected"><span class="material-symbols-rounded" aria-hidden="true">block</span>No
+                        collection</a>
+                    <a href="#permissions"><span class="material-symbols-rounded"
+                            aria-hidden="true">key</span>Permissions</a>
+                    <a href="#bluetooth"><span class="material-symbols-rounded"
+                            aria-hidden="true">bluetooth</span>Bluetooth data</a>
+                    <a href="#services"><span class="material-symbols-rounded"
+                            aria-hidden="true">cloud_off</span>Services</a>
+                    <a href="#open-source"><span class="material-symbols-rounded" aria-hidden="true">code</span>Open
+                        Source</a>
+                    <a href="#children"><span class="material-symbols-rounded"
+                            aria-hidden="true">child_care</span>Children</a>
+                    <a href="#changes"><span class="material-symbols-rounded"
+                            aria-hidden="true">update</span>Changes</a>
+                    <a href="#contact"><span class="material-symbols-rounded" aria-hidden="true">mail</span>Contact</a>
+                </div>
             </nav>
-
             <div class="policy-content">
                 <section class="policy-card" id="overview">
                     <h2>Overview</h2>
@@ -582,7 +1198,6 @@
                     <p>We take your privacy seriously. This policy explains what data the app accesses, how it is used,
                         and your rights.</p>
                 </section>
-
                 <section class="policy-card" id="not-collected">
                     <h2>Data We Do NOT Collect</h2>
                     <p>LightPods does <strong>not</strong> collect, store, transmit, or share any personal data.
@@ -596,7 +1211,6 @@
                         <li>No location data is recorded or transmitted.</li>
                     </ul>
                 </section>
-
                 <section class="policy-card" id="permissions">
                     <h2>Permissions Used</h2>
                     <p>The app requires certain Android permissions to function. All data accessed by these permissions
@@ -607,8 +1221,7 @@
                         <li><strong>ACCESS_FINE_LOCATION</strong> - Required by Android versions before Android 12 for
                             BLE scanning. We do not read or store your GPS location.</li>
                         <li><strong>FOREGROUND_SERVICE</strong> - Used to run a lightweight background monitor that
-                            keeps
-                            battery info up to date.</li>
+                            keeps battery info up to date.</li>
                         <li><strong>SYSTEM_ALERT_WINDOW</strong> - Optional. Shows a connection popup over other apps
                             when pods are detected.</li>
                         <li><strong>REQUEST_IGNORE_BATTERY_OPTIMIZATIONS</strong> - Optional. Prevents Android from
@@ -616,7 +1229,6 @@
                         <li><strong>POST_NOTIFICATIONS</strong> - Shows battery status in the notification bar.</li>
                     </ul>
                 </section>
-
                 <section class="policy-card" id="bluetooth">
                     <h2>Bluetooth Data</h2>
                     <p>The app reads BLE (Bluetooth Low Energy) advertisements broadcast by your earbuds. This data
@@ -632,44 +1244,36 @@
                     <p>This data is processed in real time on your device and is never stored permanently, logged, or
                         transmitted anywhere.</p>
                 </section>
-
                 <section class="policy-card" id="services">
                     <h2>Third-Party Services</h2>
                     <p>LightPods uses zero third-party services, SDKs, or libraries that collect user data. The app is
                         completely offline and self-contained.</p>
                 </section>
-
                 <section class="policy-card" id="open-source">
                     <h2>Open Source</h2>
                     <p>The complete source code is publicly available at <a
                             href="https://github.com/uzairdeveloper223/lightpods">github.com/uzairdeveloper223/lightpods</a>.
                         You can audit every line of code to verify these claims.</p>
                 </section>
-
                 <section class="policy-card" id="children">
                     <h2>Children's Privacy</h2>
                     <p>This app does not collect any data from anyone, including children under 13. It is safe for use
-                        by
-                        all ages.</p>
+                        by all ages.</p>
                 </section>
-
                 <section class="policy-card" id="changes">
                     <h2>Changes to This Policy</h2>
                     <p>Any changes to this privacy policy will be reflected on this page with an updated "Last Updated"
                         date. Since the app collects no data, changes are expected to be rare.</p>
                 </section>
-
                 <section class="policy-card" id="contact">
                     <h2>Contact</h2>
-                    <p>If you have questions about this privacy policy, you can reach the developer at
-                        <a href="mailto:contact@uzair.is-a.dev">contact@uzair.is-a.dev</a> or
-                        <a href="https://uzair.is-a.dev">uzair.is-a.dev</a>.
-                    </p>
+                    <p>If you have questions about this privacy policy, you can reach the developer at <a
+                            href="mailto:contact@uzair.is-a.dev">contact@uzair.is-a.dev</a> or <a
+                            href="https://uzair.is-a.dev">uzair.is-a.dev</a>.</p>
                 </section>
             </div>
         </div>
     </main>
-
     <footer>
         <div class="footer-inner">
             <p>&copy; 2026 LightPods by <a href="https://uzair.is-a.dev">Uzair Mughal</a>.</p>
@@ -679,51 +1283,6 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const navLinks = document.querySelectorAll('.toc a');
-            const sections = [];
-
-            navLinks.forEach(link => {
-                const id = link.getAttribute('href').substring(1);
-                const element = document.getElementById(id);
-                if (element) {
-                    sections.push(element);
-                }
-            });
-
-            function makeActive() {
-                let currentActiveIndex = 0;
-                let currentMaxVisible = -1;
-
-                sections.forEach((section, index) => {
-                    const rect = section.getBoundingClientRect();
-                    const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-                    if (visibleHeight > currentMaxVisible) {
-                        currentMaxVisible = visibleHeight;
-                        currentActiveIndex = index;
-                    }
-                });
-
-                navLinks.forEach((link, index) => {
-                    if (index === currentActiveIndex) {
-                        link.classList.add('active');
-                        // Scroll active chip into view on mobile
-                        if (window.innerWidth <= 920) {
-                            link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                        }
-                    } else {
-                        link.classList.remove('active');
-                    }
-                });
-            }
-
-            window.addEventListener('scroll', makeActive);
-            window.addEventListener('resize', makeActive);
-            makeActive(); // Initial call
-        });
-    </script>
 </body>
 
 </html>
