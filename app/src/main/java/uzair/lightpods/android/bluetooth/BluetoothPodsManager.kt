@@ -115,7 +115,7 @@ class BluetoothPodsManager private constructor(
                     BluetoothAdapter
                         .ACTION_STATE_CHANGED ->
                         handleAdapterStateChange(intent)
-                    BluetoothDevice.ACTION_BATTERY_LEVEL_CHANGED ->
+                    "android.bluetooth.device.action.BATTERY_LEVEL_CHANGED" ->
                         handleBatteryLevelChanged(intent)
                 }
             }
@@ -150,7 +150,7 @@ class BluetoothPodsManager private constructor(
                 BluetoothAdapter.ACTION_STATE_CHANGED
             )
             addAction(
-                BluetoothDevice.ACTION_BATTERY_LEVEL_CHANGED
+                "android.bluetooth.device.action.BATTERY_LEVEL_CHANGED"
             )
         }
 
@@ -468,7 +468,8 @@ class BluetoothPodsManager private constructor(
         val macAddress = device.address ?: ""
 
         val systemBattery = try {
-            device.getBatteryLevel()
+            val method = device.javaClass.getMethod("getBatteryLevel")
+            method.invoke(device) as Int
         } catch (e: Exception) {
             -1
         }
