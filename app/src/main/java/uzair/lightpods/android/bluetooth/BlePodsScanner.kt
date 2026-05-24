@@ -50,6 +50,7 @@ class BlePodsScanner(private val context: Context) {
                 // Scan is working — reset retry counter
                 retryCount = 0
                 _scanError.value = null
+                Log.d(TAG, "onScanResult: device=${result.device?.address}, name=${result.device?.name}, rssi=${result.rssi}")
                 parseAppleProximityData(result)
             }
 
@@ -60,6 +61,7 @@ class BlePodsScanner(private val context: Context) {
                     retryCount = 0
                     _scanError.value = null
                 }
+                Log.d(TAG, "onBatchScanResults: count=${results.size}")
                 results.forEach {
                     parseAppleProximityData(it)
                 }
@@ -106,6 +108,7 @@ class BlePodsScanner(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun startScanning() {
+        Log.d(TAG, "startScanning() called. isScanning=$isScanning")
         if (isScanning) return
 
         val manager = context.getSystemService(
@@ -115,7 +118,10 @@ class BlePodsScanner(private val context: Context) {
 
         val scanner =
             bluetoothAdapter?.bluetoothLeScanner
-                ?: return
+                ?: run {
+                    Log.e(TAG, "startScanning: bluetoothLeScanner is null! Bluetooth might be off.")
+                    return
+                }
 
         val manufacturerData =
             ByteArray(PROXIMITY_DATA_LENGTH).apply {
@@ -142,6 +148,7 @@ class BlePodsScanner(private val context: Context) {
             .setReportDelay(0)
             .build()
 
+        Log.d(TAG, "Starting BLE scan with Apple manufacturer filter")
         scanner.startScan(
             listOf(filter), settings, scanCallback
         )
@@ -150,14 +157,15 @@ class BlePodsScanner(private val context: Context) {
 
     @SuppressLint("MissingPermission")
     fun stopScanning() {
+        Log.d(TAG, "stopScanning() called")
         retryHandler.removeCallbacksAndMessages(null)
         retryCount = 0
         if (!isScanning) return
         try {
             bluetoothAdapter?.bluetoothLeScanner
                 ?.stopScan(scanCallback)
-        } catch (_: Exception) {
-            // BT adapter may have been turned off
+        } catch (e: Exception) {
+            Log.e(TAG, "stopScanning error: ${e.message}")
         }
         isScanning = false
     }
@@ -165,23 +173,42 @@ class BlePodsScanner(private val context: Context) {
     private fun parseAppleProximityData(
         result: ScanResult
     ) {
-        val record = result.scanRecord ?: return
+        val record = result.scanRecord
+        if (record == null) {
+            Log.d(TAG, "parseAppleProximityData: scanRecord is null")
+            return
+        }
         val appleData =
             record.getManufacturerSpecificData(
                 APPLE_COMPANY_ID
-            ) ?: return
+            )
+        if (appleData == null) {
+            Log.v(TAG, "parseAppleProximityData: no manufacturer data for Apple ID (0x004C)")
+            return
+        }
 
-        if (appleData.size < MIN_PAYLOAD_LENGTH) return
+        Log.d(TAG, "parseAppleProximityData: device=${result.device?.address}, appleDataSize=${appleData.size}, bytes=${appleData.map { String.format("%02X", it) }}")
+
+        if (appleData.size < MIN_PAYLOAD_LENGTH) {
+            Log.d(TAG, "parseAppleProximityData: payload too short (${appleData.size} < $MIN_PAYLOAD_LENGTH)")
+            return
+        }
         if (appleData[0].toInt() and 0xFF !=
             PROXIMITY_PAIRING_TYPE
-        ) return
+        ) {
+            Log.d(TAG, "parseAppleProximityData: pairing type mismatch (got 0x${String.format("%02X", appleData[0])})")
+            return
+        }
 
         // Message length = byte[1]
         val messageLength =
             appleData[1].toInt() and 0xFF
 
         val dataOffset = 2
-        if (appleData.size < dataOffset + 9) return
+        if (appleData.size < dataOffset + 9) {
+            Log.d(TAG, "parseAppleProximityData: payload too short for CAPod layout (${appleData.size} < ${dataOffset + 9})")
+            return
+        }
 
         // ── Byte layout (CAPod protocol) ──
         // [0] prefix

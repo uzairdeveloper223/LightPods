@@ -262,10 +262,30 @@ private fun checkAllStatuses(
     )
     statuses.add(
         PermissionStatus(
-            label = "Location",
+            label = "Location Permission",
             granted = hasLocation,
             fixAction = {
                 openAppSettings(context)
+            }
+        )
+    )
+
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as? android.location.LocationManager
+    val isLocationEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        locationManager?.isLocationEnabled == true
+    } else {
+        @Suppress("DEPRECATION")
+        locationManager?.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER) == true ||
+                locationManager?.isProviderEnabled(android.location.LocationManager.NETWORK_PROVIDER) == true
+    }
+    statuses.add(
+        PermissionStatus(
+            label = "Location Services (GPS)",
+            granted = isLocationEnabled,
+            fixAction = {
+                context.startActivity(
+                    Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                )
             }
         )
     )
