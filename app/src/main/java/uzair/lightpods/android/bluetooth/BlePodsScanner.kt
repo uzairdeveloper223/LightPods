@@ -29,8 +29,6 @@ class BlePodsScanner(private val context: Context) {
     private var bluetoothAdapter: BluetoothAdapter? =
         null
     private var isScanning = false
-
-    // ── Scan retry for BLE stack corruption ──
     private var retryCount = 0
     private val retryHandler = Handler(Looper.getMainLooper())
 
