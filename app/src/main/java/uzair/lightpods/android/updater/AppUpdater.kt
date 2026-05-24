@@ -56,7 +56,7 @@ class AppUpdater(private val context: Context) {
                 "uzairdeveloper223/lightpods/" +
                 "releases/latest"
 
-        const val CURRENT_VERSION = "1.4.3"
+        const val CURRENT_VERSION = "1.4.4"
 
         private const val CONNECT_TIMEOUT_MS = 15_000
         private const val READ_TIMEOUT_MS = 30_000

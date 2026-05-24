@@ -12,8 +12,8 @@ android {
         applicationId = "uzair.lightpods.android"
         minSdk = 24
         targetSdk = 35
-        versionCode = 10403
-        versionName = "1.4.3"
+        versionCode = 10404
+        versionName = "1.4.4"
 
         testInstrumentationRunner =
             "androidx.test.runner.AndroidJUnitRunner"

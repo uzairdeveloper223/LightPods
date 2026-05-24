@@ -160,7 +160,7 @@ private fun AppInfoCard() {
             )
 
             Text(
-                text = "Version 1.4.3",
+                text = "Version 1.4.4",
                 style = MaterialTheme
                     .typography.bodySmall,
                 color = MaterialTheme
