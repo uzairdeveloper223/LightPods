@@ -115,6 +115,8 @@ class BluetoothPodsManager private constructor(
                     BluetoothAdapter
                         .ACTION_STATE_CHANGED ->
                         handleAdapterStateChange(intent)
+                    BluetoothDevice.ACTION_BATTERY_LEVEL_CHANGED ->
+                        handleBatteryLevelChanged(intent)
                 }
             }
         }
@@ -146,6 +148,9 @@ class BluetoothPodsManager private constructor(
             )
             addAction(
                 BluetoothAdapter.ACTION_STATE_CHANGED
+            )
+            addAction(
+                BluetoothDevice.ACTION_BATTERY_LEVEL_CHANGED
             )
         }
 
@@ -462,15 +467,31 @@ class BluetoothPodsManager private constructor(
         val deviceName = device.name ?: "LightPods"
         val macAddress = device.address ?: ""
 
+        val systemBattery = try {
+            device.getBatteryLevel()
+        } catch (e: Exception) {
+            -1
+        }
+        Log.d(TAG, "handleDeviceConnected: device=${device.address}, systemBattery=$systemBattery")
+
+        var leftVal = lastKnownLeftPercent
+        var rightVal = lastKnownRightPercent
+
+        if (leftVal < 0 && systemBattery in 0..100) {
+            leftVal = systemBattery
+            lastKnownLeftPercent = systemBattery
+        }
+        if (rightVal < 0 && systemBattery in 0..100) {
+            rightVal = systemBattery
+            lastKnownRightPercent = systemBattery
+        }
+
         // Restore cached battery on reconnect so
         // the user doesn't see all-Unknown after a
         // brief disconnect/reconnect cycle.
-        val hasCachedLeft =
-            lastKnownLeftPercent in 0..100
-        val hasCachedRight =
-            lastKnownRightPercent in 0..100
-        val hasCachedCase =
-            lastKnownCasePercent in 0..100
+        val hasCachedLeft = leftVal in 0..100
+        val hasCachedRight = rightVal in 0..100
+        val hasCachedCase = lastKnownCasePercent in 0..100
 
         _state.update { current ->
             val wasDisconnected =
@@ -491,11 +512,11 @@ class BluetoothPodsManager private constructor(
                 PodBattery(
                     leftPercent =
                         if (hasCachedLeft)
-                            lastKnownLeftPercent
+                            leftVal
                         else 0,
                     rightPercent =
                         if (hasCachedRight)
-                            lastKnownRightPercent
+                            rightVal
                         else 0,
                     casePercent =
                         if (hasCachedCase)
@@ -671,6 +692,48 @@ class BluetoothPodsManager private constructor(
                         rightPercent = batteryLevel,
                         casePercent =
                             (batteryLevel * 0.9).toInt()
+                    )
+                )
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun handleBatteryLevelChanged(intent: Intent) {
+        val device = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+        } ?: return
+
+        val batteryLevel = intent.getIntExtra("android.bluetooth.device.extra.BATTERY_LEVEL", -1)
+        Log.d(TAG, "handleBatteryLevelChanged: device=${device.address}, level=$batteryLevel")
+        if (batteryLevel !in 0..100) return
+
+        val now = System.currentTimeMillis()
+        val bleAge = now - lastBleUpdateMs
+        val bleIsStale = lastBleUpdateMs == 0L || bleAge > BLE_STALE_TIMEOUT_MS
+
+        if (bleIsStale) {
+            lastKnownLeftPercent = batteryLevel
+            lastKnownRightPercent = batteryLevel
+            
+            _state.update { current ->
+                val deviceName = device.name ?: current.deviceInfo.deviceName
+                val macAddress = device.address
+                
+                current.copy(
+                    connectionState = ConnectionState.CONNECTED,
+                    battery = current.battery.copy(
+                        leftPercent = batteryLevel,
+                        rightPercent = batteryLevel,
+                        isLeftDead = false,
+                        isRightDead = false
+                    ),
+                    deviceInfo = current.deviceInfo.copy(
+                        deviceName = deviceName,
+                        macAddress = macAddress
                     )
                 )
             }
